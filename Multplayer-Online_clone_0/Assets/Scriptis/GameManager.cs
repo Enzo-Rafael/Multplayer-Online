@@ -9,11 +9,8 @@ public class GameManager : NetworkBehaviour
     public static GameManager Instance;
     //Variaveis para os indices e posicoes pra seicronização
     [Header("References")]
-    [SyncVar]
     public GameObject[] menu;
-    [SyncVar]
     public Transform[] startPosition;
-    [SyncVar]
     public Transform[] players;
     [SyncVar]
     public int charIndex;
@@ -83,7 +80,7 @@ public class GameManager : NetworkBehaviour
         timerActive = true;
     }
 
-    [Server]
+    [Client]
     public void ActiveMneu()
     {
         menu[3].SetActive(true);
