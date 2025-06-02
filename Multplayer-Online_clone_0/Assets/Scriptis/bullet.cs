@@ -13,17 +13,17 @@ public class bullet : NetworkBehaviour
     { 
         if (collision.gameObject.layer == 6)
         {
-            if(isClient)GameManager.Instance.AddPoints(1, 1);
+            GameManager.Instance.AddPoints(1, 1);
             Destroy(gameObject);
         }
         else if (collision.gameObject.layer == 7)
         {
-            if(isClient)GameManager.Instance.AddPoints(1, 2);
+            GameManager.Instance.AddPoints(1, 2);
             Destroy(gameObject);
         }
         else
         {
-            
+            Destroy(gameObject);
         }
         
     }

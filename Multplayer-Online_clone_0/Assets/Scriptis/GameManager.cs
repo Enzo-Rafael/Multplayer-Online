@@ -19,9 +19,9 @@ public class GameManager : NetworkBehaviour
     public bool player01 = false;
     [SyncVar]
     public bool player02 = false;
-    [SyncVar]
+    [SyncVar(hook = nameof(AddPoints))]
     public int player1Pontos = 0;
-    [SyncVar]
+    [SyncVar(hook = nameof(AddPoints))]
     public int player2Pontos = 0;
     [SyncVar]
     public bool timerActive = false;
