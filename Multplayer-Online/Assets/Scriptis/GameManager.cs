@@ -14,14 +14,15 @@ public class GameManager : NetworkBehaviour
     public Transform[] players;
     [SyncVar]
     public int charIndex;
+    
     [Header("Settings")]
     [SyncVar]
     public bool player01 = false;
     [SyncVar]
     public bool player02 = false;
-    [SyncVar(hook = nameof(AddPoints))]
+    [SyncVar]
     public int player1Pontos = 0;
-    [SyncVar(hook = nameof(AddPoints))]
+    [SyncVar]//(hook = nameof(AddPoints))
     public int player2Pontos = 0;
     [SyncVar]
     public bool timerActive = false;
@@ -41,54 +42,29 @@ public class GameManager : NetworkBehaviour
         matchTime = startTime * 60;
         player1Pontos = 0;
         player2Pontos = 0;
+        startPosition = NetworkManager.startPositions.ToArray();
+        menu[1].GetComponent<Text>().text = "P1: " + player1Pontos;
+        menu[2].GetComponent<Text>().text = "P2: " + player2Pontos;
     }
-
     private void Update()
     {
-        if (isServer)
+        if (timerActive == true)
         {
-            if (timerActive == true)
-            {
-                matchTime = matchTime - Time.deltaTime;
-                TimeSpan time = TimeSpan.FromSeconds(matchTime);
-                menu[0].GetComponent<Text>().text = time.Minutes.ToString() + " : " + time.Seconds.ToString();
-                if (matchTime <= 0)
-                {
-                    timerActive = false;
-                    menu[5].SetActive(true);
-                    if (player1Pontos > player2Pontos)
-                    {
-                        menu[5].GetComponent<Text>().text = "Parabens: P1";
-                    }
-                    else if (player2Pontos > player1Pontos)
-                    {
-                        menu[5].GetComponent<Text>().text = "Parabens: P2";
-                    }
-                    else
-                    {
-                        menu[5].GetComponent<Text>().text = "EMPATE";
-                    }
-                    menu[6].SetActive(true);
-                }
-            }
+            matchTime = matchTime - Time.deltaTime;
+            CanvasUpdate(matchTime);
         }
+        
     }
-
-    [Server]
-    public void ActiveTimer()
-    {
-        timerActive = true;
-    }
-
+    //-------------------------------------------------------Client-Area-------------------------------------------------------------
     [Client]
     public void ActiveMneu()
     {
         menu[3].SetActive(true);
         menu[4].SetActive(true);
-        menu[6].SetActive(true);
+        if(isServer)menu[6].SetActive(true);
     }
 
-    //[Server]
+    [Client]
     public void DesActiveMneu()
     {
         menu[3].SetActive(false);
@@ -96,6 +72,7 @@ public class GameManager : NetworkBehaviour
         menu[5].SetActive(false);
         menu[6].SetActive(false);
     }
+
     [Client]
     public void SetCanvas()//Serve para setar as referencias
     {
@@ -107,6 +84,54 @@ public class GameManager : NetworkBehaviour
         menu[5] = GameObject.FindGameObjectWithTag("M6");
         menu[6] = GameObject.FindGameObjectWithTag("M7");
         DesActiveMneu();
+    }
+
+    [Client]
+    public void ShowPoints()
+    {
+        menu[1].GetComponent<Text>().text = "P1: " + player1Pontos;
+        menu[2].GetComponent<Text>().text = "P2: " + player2Pontos;
+    }
+    [Client]
+    public void PosicionAjust()
+    {
+        if(isOwned && GameObject.FindGameObjectWithTag("Player1")==true)GameObject.FindGameObjectWithTag("Player1").transform.position = startPosition[0].position;
+        if(isOwned && GameObject.FindGameObjectWithTag("Player2")==true)GameObject.FindGameObjectWithTag("Player2").transform.position = startPosition[1].position;
+    }
+
+    [Client]
+    public void CanvasUpdate(float match)//Serve para alterar os textos dos canvas
+    {
+        TimeSpan time = TimeSpan.FromSeconds(match);
+        menu[0].GetComponent<Text>().text = time.Minutes.ToString() + " : " + time.Seconds.ToString();
+        if (matchTime <= 0)
+        {
+            timerActive = false;
+            menu[5].SetActive(true);
+            if (player1Pontos > player2Pontos)
+            {
+                timerActive = false;
+                menu[5].GetComponentInChildren<Text>().text = "Parabens: P1";
+            }
+            else if (player2Pontos > player1Pontos)
+            {
+                timerActive = false;
+                menu[5].GetComponentInChildren<Text>().text = "Parabens: P2";
+            }
+            else
+            {
+                timerActive = false;
+                menu[5].GetComponentInChildren<Text>().text = "EMPATE";
+            }
+            menu[6].SetActive(true);
+        }
+        ShowPoints();
+    }
+    //-------------------------------------------------------Server-Area-------------------------------------------------------------
+    [Server]
+    public void ActiveTimer()
+    {
+        timerActive = true;
     }
 
     [Server]
@@ -128,22 +153,9 @@ public class GameManager : NetworkBehaviour
         charIndex = index;
     }
 
-    [Client]
-    public void AddPoints(int points, int indexPlayer)//Serve para adicionar os pontos 
-    {
-        if (indexPlayer == 1)
-        {
-            player1Pontos += points;
-            menu[1].GetComponent<Text>().text = "P1: " + player1Pontos;
-        }
-        if (indexPlayer == 2)
-        {
-            player2Pontos += points;
-            menu[2].GetComponent<Text>().text = "P2: " + player2Pontos;
-        }
-    }
+    
     [Server]
-    public void RestMach()
+    public void ResetMach()
     {
         menu[5].SetActive(false);
         matchTime = startTime * 60;
@@ -151,9 +163,10 @@ public class GameManager : NetworkBehaviour
         player2Pontos = 0;
         menu[1].GetComponent<Text>().text = "P1: " + player1Pontos;
         menu[2].GetComponent<Text>().text = "P2: " + player2Pontos;
+        PosicionAjust();
         ActiveTimer();
-    
     }
+
     [Server]
     public void SetSpawnPos(Transform[] positions)
     {

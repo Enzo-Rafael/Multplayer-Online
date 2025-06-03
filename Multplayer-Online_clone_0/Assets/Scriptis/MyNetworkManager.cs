@@ -8,11 +8,8 @@ public class MyNetworkManager : NetworkManager
         base.OnStartHost();
         GameManager.Instance.SetSpawnPos(NetworkManager.startPositions.ToArray());
     }
-    public override void OnServerAddPlayer(NetworkConnectionToClient conn)
-    {
-        base.OnServerAddPlayer(conn);
-    }
-    public override void OnServerConnect(NetworkConnectionToClient conn)//Acontece quando o Serve Inicia
+    
+    public override void OnServerConnect(NetworkConnectionToClient conn)//Acontece quando o Server Inicia
     {
         base.OnServerConnect(conn);
         Debug.Log("Ola, conectei ");

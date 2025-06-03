@@ -1162,7 +1162,7 @@ MonoBehaviour:
   player2Pontos: 0
   timerActive: 0
   matchTime: 0
-  startTime: 10
+  startTime: 5
 --- !u!4 &286744259
 Transform:
   m_ObjectHideFlags: 0
@@ -6775,7 +6775,7 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 286744258}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: RestMach
+        m_MethodName: ResetMach
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

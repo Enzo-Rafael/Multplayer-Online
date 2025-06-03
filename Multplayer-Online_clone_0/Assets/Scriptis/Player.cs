@@ -13,6 +13,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private GameObject myCam = default;  //Camera do player
 
     [Header("Settings")]
+    public int indexPlayer;
     public float bulletSpeed = 10; //Velocidade base do projetil
     private bool canShoot = true;  //Limitador dos tiros
 
@@ -21,7 +22,7 @@ public class Player : NetworkBehaviour
     {
         if (!isOwned) { return; }
 
-        if (Mouse.current.leftButton.isPressed)//Disparo
+        if (Mouse.current.leftButton.isPressed && GameManager.Instance.timerActive == true)//Disparo
         {
             if (canShoot == true)
             {
@@ -38,18 +39,14 @@ public class Player : NetworkBehaviour
     {
         if (!authority) { return; }
         GameManager.Instance.ActiveMneu();
-       
-        /*if (gameObject.tag == "Player1") transform.position = GameManager.Instance.startPosition[0].position;
-        if (gameObject.tag == "Player2") transform.position = GameManager.Instance.startPosition[1].position;*/
-
     }
     public override void OnStartAuthority()
     {
         myCam.SetActive(true);
     }
    
-    [Command]//[ClientCallback]
-    void CmdSpawnBullet() //comando que instncia o projétiu
+    [Command]
+    void CmdSpawnBullet() //comando que instncia o projétil
     {
         GameObject bulletClone = Instantiate(bullet, bulletSpawnPoint.transform.position, transform.rotation);
         bulletClone.GetComponent<Rigidbody>().linearVelocity = bulletSpawnPoint.transform.up * bulletSpeed;
