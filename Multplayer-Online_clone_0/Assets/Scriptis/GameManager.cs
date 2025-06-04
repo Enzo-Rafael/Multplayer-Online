@@ -57,7 +57,7 @@ public class GameManager : NetworkBehaviour
     }
     //-------------------------------------------------------Client-Area-------------------------------------------------------------
     [Client]
-    public void ActiveMneu()
+    public void ActiveMneu()//Serve para ativar parte do canvas
     {
         menu[3].SetActive(true);
         menu[4].SetActive(true);
@@ -65,7 +65,7 @@ public class GameManager : NetworkBehaviour
     }
 
     [Client]
-    public void DesActiveMneu()
+    public void DesActiveMneu()//Serve para desativar parte do canvas
     {
         menu[3].SetActive(false);
         menu[4].SetActive(false);
@@ -87,20 +87,27 @@ public class GameManager : NetworkBehaviour
     }
 
     [Client]
-    public void ShowPoints()
+    public void ShowPoints()//Serve para alterar os textos relacionados a pontuação
     {
         menu[1].GetComponent<Text>().text = "P1: " + player1Pontos;
         menu[2].GetComponent<Text>().text = "P2: " + player2Pontos;
     }
     [Client]
-    public void PosicionAjust()
+    public void AddPoints(int index)//Serve para alterar os valores relacionados a pontuação
     {
-        if(isOwned && GameObject.FindGameObjectWithTag("Player1")==true)GameObject.FindGameObjectWithTag("Player1").transform.position = startPosition[0].position;
-        if(isOwned && GameObject.FindGameObjectWithTag("Player2")==true)GameObject.FindGameObjectWithTag("Player2").transform.position = startPosition[1].position;
+        if(index == 0)player1Pontos++;
+        if(index == 1)player2Pontos++;
+        ShowPoints();
+    }
+    [Client]
+    public void PosicionAjust()//Serve para ajustar as posições dos jogadores
+    {
+        if (isOwned && GameObject.FindGameObjectWithTag("Player1") == true) GameObject.FindGameObjectWithTag("Player1").transform.position = startPosition[0].position;
+        if (isOwned && GameObject.FindGameObjectWithTag("Player2") == true) GameObject.FindGameObjectWithTag("Player2").transform.position = startPosition[1].position;
     }
 
     [Client]
-    public void CanvasUpdate(float match)//Serve para alterar os textos dos canvas
+    public void CanvasUpdate(float match)//Serve para alterar os textos dos canvas e rodar os cronometros
     {
         TimeSpan time = TimeSpan.FromSeconds(match);
         menu[0].GetComponent<Text>().text = time.Minutes.ToString() + " : " + time.Seconds.ToString();
@@ -129,7 +136,7 @@ public class GameManager : NetworkBehaviour
     }
     //-------------------------------------------------------Server-Area-------------------------------------------------------------
     [Server]
-    public void ActiveTimer()
+    public void ActiveTimer()//Server para ativar o cronometro
     {
         timerActive = true;
     }
@@ -148,14 +155,13 @@ public class GameManager : NetworkBehaviour
     }
 
     [Server]
-    public void SetIndexCurrent(int index)
+    public void SetIndexCurrent(int index)//Serve para ajustar o index do personagem atalmente selecionado
     {
         charIndex = index;
     }
 
-    
     [Server]
-    public void ResetMach()
+    public void ResetMach()//Serve para resetar a partida
     {
         menu[5].SetActive(false);
         matchTime = startTime * 60;
@@ -168,7 +174,7 @@ public class GameManager : NetworkBehaviour
     }
 
     [Server]
-    public void SetSpawnPos(Transform[] positions)
+    public void SetSpawnPos(Transform[] positions)//Serve para setar as posições iniciais dos players
     {
         startPosition = positions;
     }
