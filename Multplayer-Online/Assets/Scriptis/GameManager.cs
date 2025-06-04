@@ -14,7 +14,7 @@ public class GameManager : NetworkBehaviour
     public Transform[] players;
     [SyncVar]
     public int charIndex;
-    
+
     [Header("Settings")]
     [SyncVar]
     public bool player01 = false;
@@ -53,7 +53,7 @@ public class GameManager : NetworkBehaviour
             matchTime = matchTime - Time.deltaTime;
             CanvasUpdate(matchTime);
         }
-        
+
     }
     //-------------------------------------------------------Client-Area-------------------------------------------------------------
     [Client]
@@ -61,7 +61,7 @@ public class GameManager : NetworkBehaviour
     {
         menu[3].SetActive(true);
         menu[4].SetActive(true);
-        if(isServer)menu[6].SetActive(true);
+        if (isServer) menu[6].SetActive(true);
     }
 
     [Client]
@@ -92,13 +92,7 @@ public class GameManager : NetworkBehaviour
         menu[1].GetComponent<Text>().text = "P1: " + player1Pontos;
         menu[2].GetComponent<Text>().text = "P2: " + player2Pontos;
     }
-    [Client]
-    public void AddPoints(int index)//Serve para alterar os valores relacionados a pontuação
-    {
-        if(index == 0)player1Pontos++;
-        if(index == 1)player2Pontos++;
-        ShowPoints();
-    }
+
     [Client]
     public void PosicionAjust()//Serve para ajustar as posições dos jogadores
     {
@@ -160,7 +154,6 @@ public class GameManager : NetworkBehaviour
         charIndex = index;
     }
 
-    
     [Server]
     public void ResetMach()//Serve para resetar a partida
     {
@@ -178,5 +171,14 @@ public class GameManager : NetworkBehaviour
     public void SetSpawnPos(Transform[] positions)//Serve para setar as posições iniciais dos players
     {
         startPosition = positions;
+    }
+    
+    [Server]
+    public void AddPoints(int index)//Serve para alterar os valores relacionados a pontuação
+    {
+        Debug.Log("Bullet");
+        if (index == 0) player1Pontos++;
+        if (index == 1) player2Pontos++;
+        ShowPoints();
     }
 }

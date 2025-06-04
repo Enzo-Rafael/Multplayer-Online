@@ -11,9 +11,15 @@ public class bullet : NetworkBehaviour
     [Server]
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Player1"))GameManager.Instance.AddPoints(0);
+        if (!authority)
+        {
+            Destroy(gameObject);
+            return;
+        } 
+        
+        if ( collision.gameObject.CompareTag("Player1")) GameManager.Instance.AddPoints(0);
         if (collision.gameObject.CompareTag("Player2"))GameManager.Instance.AddPoints(1);
-        //Destroy(gameObject);
-    
+        Destroy(gameObject);
+
     }
 }

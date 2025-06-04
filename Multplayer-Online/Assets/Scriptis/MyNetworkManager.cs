@@ -3,11 +3,11 @@ using Unity.VisualScripting;
 using Mirror;
 public class MyNetworkManager : NetworkManager
 {
-    public override void OnStartHost()//Acontece quando o Host Inicia
+    /*public override void OnStartHost()//Acontece quando o Host Inicia
     {
         base.OnStartHost();
         GameManager.Instance.SetSpawnPos(NetworkManager.startPositions.ToArray());
-    }
+    }*/
     
     public override void OnServerConnect(NetworkConnectionToClient conn)//Acontece quando o Server Inicia
     {
