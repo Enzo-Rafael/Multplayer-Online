@@ -3,6 +3,7 @@ using Mirror;
 using UnityEngine.InputSystem;
 using System.Collections;
 using Unity.Cinemachine;
+using Mirror.Examples.Common.Controllers.Player;
 
 
 public class Player : NetworkBehaviour
@@ -11,7 +12,6 @@ public class Player : NetworkBehaviour
     [SerializeField] private GameObject bullet = null;   //GameObject do projetil disparado pelo player
     [SerializeField] private Transform bulletSpawnPoint; //Posição onde sera instanciado o projetil
     [SerializeField] private GameObject myCam = default;  //Camera do player
-
     [Header("Settings")]
     public int indexPlayer;
     public float bulletSpeed = 10; //Velocidade base do projetil

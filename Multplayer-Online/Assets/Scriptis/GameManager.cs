@@ -61,14 +61,13 @@ public class GameManager : NetworkBehaviour
     {
         menu[3].SetActive(true);
         menu[4].SetActive(true);
-        if (isServer) menu[6].SetActive(true);
     }
-
+  
     [Client]
     public void DesActiveMneu()//Serve para desativar parte do canvas
     {
         menu[3].SetActive(false);
-        menu[4].SetActive(false);
+        //menu[4].SetActive(false);
         menu[5].SetActive(false);
         menu[6].SetActive(false);
     }
@@ -163,7 +162,7 @@ public class GameManager : NetworkBehaviour
         player2Pontos = 0;
         menu[1].GetComponent<Text>().text = "P1: " + player1Pontos;
         menu[2].GetComponent<Text>().text = "P2: " + player2Pontos;
-        PosicionAjust();
+        //PosicionAjust();
         ActiveTimer();
     }
 
@@ -172,7 +171,7 @@ public class GameManager : NetworkBehaviour
     {
         startPosition = positions;
     }
-    
+
     [Server]
     public void AddPoints(int index)//Serve para alterar os valores relacionados a pontuação
     {
@@ -180,5 +179,10 @@ public class GameManager : NetworkBehaviour
         if (index == 0) player1Pontos++;
         if (index == 1) player2Pontos++;
         ShowPoints();
+    }
+    [Server]
+    public void ShowStart()
+    {
+        menu[6].SetActive(true);
     }
 }

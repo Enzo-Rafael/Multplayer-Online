@@ -68,7 +68,7 @@ public class SteamLobby : MonoBehaviour
         uiTxt.text = SteamMatchmaking.GetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), "name");
 
 
-        //Só os client
+        //Só os clients
         if (NetworkServer.active) { return; }
         networkManager.networkAddress = SteamMatchmaking.GetLobbyData(
                 new CSteamID(callback.m_ulSteamIDLobby),

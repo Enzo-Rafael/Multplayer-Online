@@ -3,6 +3,7 @@ using System;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using Mirror;
+using Steamworks;
 
 [CreateAssetMenu(fileName = "SeletorCharacter", menuName = "Scriptable Objects/SeletorCharacter")]
 public class SeletorCharacter : NetworkBehaviour
@@ -10,17 +11,17 @@ public class SeletorCharacter : NetworkBehaviour
     /*Cretitos: 
         Dapper Dino:https://www.youtube.com/@DapperDinoCodingTutorials
         */
-        //Variaveis
-        [SerializeField] private GameObject characterSelectDisplay = default;//Menu de seleção de personagem
-        [SerializeField] private Transform characterPreviewParent = default;//tranforme de onde o personagem que esta sendo mostrado vai estar 
-        [SerializeField] private Text characterNameText;//onde ficara o nome do persongem
-        [SerializeField] private float turnSpeed = 90f;//Velocidade da troca de seleção de personagens
-        [SerializeField] private Character[] characters = default;//Lista ScriptableObjects dos personageens
-                         private NetworkIdentity identity = default;
+    //Variaveis
+    [SerializeField] private GameObject characterSelectDisplay = default;//Menu de seleção de personagem
+    [SerializeField] private Transform characterPreviewParent = default;//tranforme de onde o personagem que esta sendo mostrado vai estar 
+    [SerializeField] private Text characterNameText;//onde ficara o nome do persongem
+    [SerializeField] private float turnSpeed = 90f;//Velocidade da troca de seleção de personagens
+    [SerializeField] private Character[] characters = default;//Lista ScriptableObjects dos personageens
+    private NetworkIdentity identity = default;
         
         //[SyncVar][NonSerialized]public bool P1Selected = false , P2Selected = false;//checar se o personagem foi escolhiido
     private int currentCharacterIndex = 0;//Index dos persongens
-        private List<GameObject> characterInstances = new List<GameObject>();//Lista da preview dos personagens
+    private List<GameObject> characterInstances = new List<GameObject>();//Lista da preview dos personagens
 
     private void Start()
     {
