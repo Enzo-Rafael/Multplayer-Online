@@ -4,11 +4,11 @@ using Mirror;
 using Steamworks;
 public class MyNetworkManager : NetworkManager
 {
-    public override void OnStartHost()//Acontece quando o Host Inicia
+    /*public override void OnStartHost()//Acontece quando o Host Inicia
     {
         base.OnStartHost();
         //GameManager.Instance.menu[6].SetActive(true);
-    }
+    }*/
 
     public override void OnServerConnect(NetworkConnectionToClient conn)//Acontece quando o Server Inicia
     {
@@ -37,11 +37,12 @@ public class MyNetworkManager : NetworkManager
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)//Serve para pegar o Steam ID do jogador
     {
         base.OnServerAddPlayer(conn);
-
         CSteamID steamID = SteamMatchmaking.GetLobbyMemberByIndex(SteamLobby.iD,
         numPlayers - 1);
 
         var playerName = conn.identity.GetComponent<PlayerName>();
-        playerName.SetID(steamID.m_SteamID);
+        if(playerName != null)playerName.SetID(steamID.m_SteamID);
+
+        
     }
 }

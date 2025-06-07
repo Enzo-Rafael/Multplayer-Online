@@ -95,8 +95,16 @@ public class GameManager : NetworkBehaviour
     [Client]
     public void PosicionAjust()//Serve para ajustar as posições dos jogadores
     {
-        if (isOwned && GameObject.FindGameObjectWithTag("Player1") == true) GameObject.FindGameObjectWithTag("Player1").transform.position = startPosition[0].position;
-        if (isOwned && GameObject.FindGameObjectWithTag("Player2") == true) GameObject.FindGameObjectWithTag("Player2").transform.position = startPosition[1].position;
+        if (isOwned && GameObject.FindGameObjectWithTag("Player1") == true)
+        {
+            GameObject.FindGameObjectWithTag("Player1").transform.position = startPosition[0].position;
+             GameObject.FindGameObjectWithTag("Player1").transform.rotation = startPosition[0].rotation;
+        }
+        if (isOwned && GameObject.FindGameObjectWithTag("Player2") == true)
+        {
+            GameObject.FindGameObjectWithTag("Player2").transform.position = startPosition[1].position;
+            GameObject.FindGameObjectWithTag("Player2").transform.rotation = startPosition[1].rotation;
+        }
     }
 
     [Client]
@@ -162,7 +170,7 @@ public class GameManager : NetworkBehaviour
         player2Pontos = 0;
         menu[1].GetComponent<Text>().text = "P1: " + player1Pontos;
         menu[2].GetComponent<Text>().text = "P2: " + player2Pontos;
-        //PosicionAjust();
+        PosicionAjust();
         ActiveTimer();
     }
 

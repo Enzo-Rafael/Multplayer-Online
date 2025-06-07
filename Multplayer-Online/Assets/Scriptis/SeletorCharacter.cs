@@ -85,7 +85,8 @@ public class SeletorCharacter : NetworkBehaviour
         GameObject characterInstance = Instantiate(characters[characterIndex].GameplayCharacterPrefab,
          GameManager.Instance.startPosition[characterIndex].position, GameManager.Instance.startPosition[characterIndex].rotation);
         NetworkServer.Spawn(characterInstance, sender);
-        //characterInstance.transform.position = GameManager.Instance.startPosition[characterIndex].position;//teste
+        //----------------------------------------------
+        
         
     }
 
