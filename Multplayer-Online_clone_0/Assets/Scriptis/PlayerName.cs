@@ -1,17 +1,41 @@
+using System;
 using Mirror;
+using Steamworks;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerName : NetworkBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SyncVar(hook = nameof(HandleSteamIdUpdate))]
+    private ulong steamID;
+
+    [SerializeField] private RawImage profileImage = null;
+    [SerializeField] private TMP_Text displayName = null;
+
+    public void SetID(ulong steamID)//Serve para setar o ID do server
     {
-        
+        this.steamID = steamID;
     }
 
-    // Update is called once per frame
-    void Update()
+
+    private void HandleSteamIdUpdate(ulong oldID, ulong newID)
     {
-        
+        var cSteamID = new CSteamID(newID);
+
+        displayName.text = SteamFriends.GetFriendPersonaName(cSteamID);
+
+        int imageID = SteamFriends.GetLargeFriendAvatar(cSteamID);
+        if (imageID == -1) { return; }
+        profileImage.texture = GetSteamImageAsTexture(imageID);
     }
+
+    private Texture2D GetSteamImageAsTexture(int iImage)
+    {
+        Texture2D texture = null;
+
+
+        return texture;
+    }
+
 }

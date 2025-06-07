@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.VisualScripting;
 using Mirror;
+using Steamworks;
 public class MyNetworkManager : NetworkManager
 {
     public override void OnStartHost()//Acontece quando o Host Inicia
@@ -8,7 +9,7 @@ public class MyNetworkManager : NetworkManager
         base.OnStartHost();
         //GameManager.Instance.menu[6].SetActive(true);
     }
-    
+
     public override void OnServerConnect(NetworkConnectionToClient conn)//Acontece quando o Server Inicia
     {
         base.OnServerConnect(conn);
@@ -32,5 +33,15 @@ public class MyNetworkManager : NetworkManager
         GameManager.Instance.DesActiveMneu();
         GameManager.Instance.CheckCharactersDisponibility();
         base.OnClientDisconnect();
+    }
+    public override void OnServerAddPlayer(NetworkConnectionToClient conn)//Serve para pegar o Steam ID do jogador
+    {
+        base.OnServerAddPlayer(conn);
+
+        CSteamID steamID = SteamMatchmaking.GetLobbyMemberByIndex(SteamLobby.iD,
+        numPlayers - 1);
+
+        var playerName = conn.identity.GetComponent<PlayerName>();
+        playerName.SetID(steamID.m_SteamID);
     }
 }
