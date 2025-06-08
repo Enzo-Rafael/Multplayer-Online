@@ -88,6 +88,7 @@ public class SeletorCharacter : NetworkBehaviour
         //----------------------------------------------
         
         
+        
     }
 
     public void BtnChangeRight(){//Vai fazer a troca de personagem levando o a auteração de valores para a direita

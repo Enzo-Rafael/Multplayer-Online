@@ -11,7 +11,7 @@ namespace Mirror.FizzySteam
     private event Action<int> OnConnected;
     private event Action<int, byte[], int> OnReceivedData;
     private event Action<int> OnDisconnected;
-    private event Action<int, Exception> OnReceivedError;
+    private event Action<int, TransportError, string> OnReceivedError;
 
     private BidirectionalDictionary<CSteamID, int> steamToMirrorIds;
     private int maxConnections;
@@ -24,7 +24,7 @@ namespace Mirror.FizzySteam
       s.OnConnected += (id) => transport.OnServerConnected.Invoke(id);
       s.OnDisconnected += (id) => transport.OnServerDisconnected.Invoke(id);
       s.OnReceivedData += (id, data, channel) => transport.OnServerDataReceived.Invoke(id, new ArraySegment<byte>(data), channel);
-      s.OnReceivedError += (id, exception) => transport.OnServerError.DynamicInvoke(id, exception);
+      s.OnReceivedError += (id, error, reason) => transport.OnServerError.Invoke(id, error, reason);
 
       if (!SteamManager.Initialized)
       {
@@ -87,7 +87,7 @@ namespace Mirror.FizzySteam
       {
         CloseP2PSessionWithUser(clientSteamID);
         Debug.LogError("Data received from steam client thats not known " + clientSteamID);
-        OnReceivedError.Invoke(-1, new Exception("ERROR Unknown SteamID"));
+        OnReceivedError.Invoke(-1, TransportError.DnsResolve, "ERROR Unknown SteamID");
       }
     }
 
@@ -124,7 +124,7 @@ namespace Mirror.FizzySteam
       else
       {
         Debug.LogError("Trying to send on unknown connection: " + connectionId);
-        OnReceivedError.Invoke(connectionId, new Exception("ERROR Unknown Connection"));
+        OnReceivedError.Invoke(connectionId, TransportError.Unexpected, "ERROR Unknown Connection");
       }
     }
 
@@ -137,7 +137,7 @@ namespace Mirror.FizzySteam
       else
       {
         Debug.LogError("Trying to get info on unknown connection: " + connectionId);
-        OnReceivedError.Invoke(connectionId, new Exception("ERROR Unknown Connection"));
+        OnReceivedError.Invoke(connectionId, TransportError.Unexpected, "ERROR Unknown Connection");
         return string.Empty;
       }
     }

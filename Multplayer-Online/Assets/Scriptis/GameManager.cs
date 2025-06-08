@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using Steamworks;
 public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance;
@@ -12,6 +13,7 @@ public class GameManager : NetworkBehaviour
     public GameObject[] menu;
     public Transform[] startPosition;
     public Transform[] players;
+    [NonSerialized] public CSteamID steamIdGM;
     [SyncVar]
     public int charIndex;
 
@@ -170,7 +172,7 @@ public class GameManager : NetworkBehaviour
         player2Pontos = 0;
         menu[1].GetComponent<Text>().text = "P1: " + player1Pontos;
         menu[2].GetComponent<Text>().text = "P2: " + player2Pontos;
-        PosicionAjust();
+        //PosicionAjust();
         ActiveTimer();
     }
 

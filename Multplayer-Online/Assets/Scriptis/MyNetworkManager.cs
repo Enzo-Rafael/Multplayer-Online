@@ -39,7 +39,7 @@ public class MyNetworkManager : NetworkManager
         base.OnServerAddPlayer(conn);
         CSteamID steamID = SteamMatchmaking.GetLobbyMemberByIndex(SteamLobby.iD,
         numPlayers - 1);
-
+        GameManager.Instance.steamIdGM = steamID;
         var playerName = conn.identity.GetComponent<PlayerName>();
         if(playerName != null)playerName.SetID(steamID.m_SteamID);
 

@@ -14,7 +14,10 @@ public class PlayerName : NetworkBehaviour
     [SerializeField] private TMP_Text displayName = null;
 
     protected Callback<AvatarImageLoaded_t> avatarILoad;
-
+    public void Awake()
+    {
+        if (authority) SetID(GameManager.Instance.steamIdGM.m_SteamID);
+    }
 
     public override void OnStartClient()
     {
