@@ -287,7 +287,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.1
+  near clip plane: 0.5
   far clip plane: 200
   field of view: 40
   orthographic: 0
@@ -846,8 +846,9 @@ MonoBehaviour:
   jumpForce: 1.5
   gravity: -9.81
   cameraHolder: {fileID: 5145694859948203938}
-  mouseSensitivity: 1
+  mouseSensitivity: 2
   clampAngle: 80
+  smoothTime: 0.15
 --- !u!136 &7373533109304387603
 CapsuleCollider:
   m_ObjectHideFlags: 0

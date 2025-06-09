@@ -97,7 +97,7 @@ public class PlayerMuve : NetworkBehaviour
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
             UnlockCursor();
 
-        if (Mouse.current.leftButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked)
+        if (Mouse.current.rightButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked)
             LockCursor();
     }
     void LockCursor()
