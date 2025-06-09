@@ -18,8 +18,6 @@ public class SeletorCharacter : NetworkBehaviour
     [SerializeField] private float turnSpeed = 90f;//Velocidade da troca de seleção de personagens
     [SerializeField] private Character[] characters = default;//Lista ScriptableObjects dos personageens
     private NetworkIdentity identity = default;
-        
-        //[SyncVar][NonSerialized]public bool P1Selected = false , P2Selected = false;//checar se o personagem foi escolhiido
     private int currentCharacterIndex = 0;//Index dos persongens
     private List<GameObject> characterInstances = new List<GameObject>();//Lista da preview dos personagens
 
@@ -30,6 +28,7 @@ public class SeletorCharacter : NetworkBehaviour
     }
     public override void OnStartClient()
     {
+        GameManager.Instance.DesactiveMenus();
         if (characterPreviewParent.childCount == 0)
         {
             foreach (var character in characters)
@@ -68,7 +67,6 @@ public class SeletorCharacter : NetworkBehaviour
         if ((currentCharacterIndex == 0 && GameManager.Instance.player01 == false) || (currentCharacterIndex == 1 && GameManager.Instance.player02 == false))
         {
             CmdSelect(currentCharacterIndex, identity.connectionToClient);
-            characterSelectDisplay.SetActive(false);
         }
         else
         {
@@ -86,9 +84,22 @@ public class SeletorCharacter : NetworkBehaviour
          GameManager.Instance.startPosition[characterIndex].position, GameManager.Instance.startPosition[characterIndex].rotation);
         NetworkServer.Spawn(characterInstance, sender);
         //----------------------------------------------
-        
-        
-        
+        // Atribui autoridade explicitamente
+        characterInstance.GetComponent<NetworkIdentity>().AssignClientAuthority(sender);// Atribui autoridade ao cliente
+        TargetOnCharacterSpawned(sender, characterIndex);// Informa ao cliente para ocultar seleção e ativar menus
+    }
+    [TargetRpc]
+    void TargetOnCharacterSpawned(NetworkConnection target, int characterIndex)
+    {
+        // Oculta menu de seleção local
+        characterSelectDisplay.SetActive(false);
+
+        // Ativa UI do jogador
+        GameManager.Instance.ActiveMenus();
+        GameManager.Instance.ShowPoints();
+
+        // Se for o host (servidor + cliente), ativa botão iniciar
+        if (isServer)GameManager.Instance.ShowStart();
     }
 
     public void BtnChangeRight(){//Vai fazer a troca de personagem levando o a auteração de valores para a direita

@@ -38,7 +38,7 @@ public class Player : NetworkBehaviour
     public void Awake()
     {
         if (!authority) { return; }
-        GameManager.Instance.ActiveMneu();
+        //GameManager.Instance.ActiveMneu();
     }
     public override void OnStartAuthority()
     {

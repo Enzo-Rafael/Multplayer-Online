@@ -4,6 +4,10 @@ using Mirror;
 using Steamworks;
 public class MyNetworkManager : NetworkManager
 {
+    [Header("Custom Prefabs")]
+    public GameObject gameManagerPrefab;
+    private GameManager gameManagerInstance;
+
     public override void Awake()
     {
         base.Awake();
@@ -19,6 +23,14 @@ public class MyNetworkManager : NetworkManager
         base.OnStartHost();
         NetworkServer.disconnectInactiveConnections = false;
     }
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+
+        gameManagerInstance = Instantiate(gameManagerPrefab).GetComponent<GameManager>();
+        NetworkServer.Spawn(gameManagerInstance.gameObject);
+        GameManager.Instance = gameManagerInstance;
+    }
 
     public override void OnServerConnect(NetworkConnectionToClient conn)//Acontece quando o Server Inicia
     {
@@ -26,7 +38,7 @@ public class MyNetworkManager : NetworkManager
         Debug.Log("Ola, conectei ");
         //GameManager.Instance.startPos = NetworkManager.startPositions;
 
-        GameManager.Instance.CheckCharactersDisponibility();
+        GameManager.Instance?.CheckCharactersDisponibility();
 
     }
     public override void OnClientConnect()//Acontece quando o Cliente conecta
@@ -41,9 +53,14 @@ public class MyNetworkManager : NetworkManager
         Debug.Log("Desonectei");
         if (GameManager.Instance != null)
         {
-        GameManager.Instance.DesActiveMneu();
-        GameManager.Instance.CheckCharactersDisponibility();
+            GameManager.Instance.DesactiveMenus();
+            GameManager.Instance.CheckCharactersDisponibility();
         }
         base.OnClientDisconnect();
+    }
+    public override void OnServerAddPlayer(NetworkConnectionToClient conn)//Chamada quando o server adiciona um player
+    {
+        base.OnServerAddPlayer(conn);
+        if (GameManager.Instance != null)GameManager.Instance.TargetSyncState(conn);
     }
 }

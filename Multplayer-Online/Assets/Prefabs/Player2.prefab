@@ -426,9 +426,9 @@ MonoBehaviour:
   jumpForce: 1.5
   gravity: -9.81
   cameraHolder: {fileID: 8221947080521263269}
-  mouseSensitivity: 2
+  mouseSensitivity: 0.09
   clampAngle: 80
-  smoothTime: 0.15
+  smoothTime: 0.05
 --- !u!1 &4855671769582880989
 GameObject:
   m_ObjectHideFlags: 0

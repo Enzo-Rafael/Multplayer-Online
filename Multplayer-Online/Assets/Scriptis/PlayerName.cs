@@ -14,21 +14,21 @@ public class PlayerName : NetworkBehaviour
     [SerializeField] private TMP_Text displayName = null;
 
     protected Callback<AvatarImageLoaded_t> avatarILoad;
-    public void Awake()
+    public override void OnStartAuthority()//Quando a autoridade comer sera executado
     {
-        if (authority) SetID(GameManager.Instance.steamIdGM.m_SteamID);
+        CmdSetSteamID(GameManager.Instance.steamIdGM.m_SteamID);
+    }
+
+    [Command]
+    public void CmdSetSteamID(ulong id)
+    {
+        steamID = id; // Isso sincroniza para todos os clientes automaticamente
     }
 
     public override void OnStartClient()
     {
         avatarILoad = Callback<AvatarImageLoaded_t>.Create(OnAvatarImageLoaded);
     }
-
-    public void SetID(ulong steamID)//Serve para setar o ID do server
-    {
-        this.steamID = steamID;
-    }
-
 
     private void HandleSteamIdUpdate(ulong oldID, ulong newID)
     {
@@ -64,8 +64,6 @@ public class PlayerName : NetworkBehaviour
                 texture.Apply();
             }
         }
-
         return texture;
     }
-
 }

@@ -19,14 +19,17 @@ public class PlayerMuve : NetworkBehaviour
 
     private CharacterController controller;
     private PlayerInputActions inputActions;
+
     private Vector2 inputMove;
     private Vector2 inputLook;
     private Vector2 currentLook;
     private Vector2 currentLookVelocity;
+
     private Vector3 velocity;
     private float xRotation = 0f;
     private bool jumpQueued = false;
-
+    //--Ajustes-pra-Sync-Online
+    private Vector3 serverMoveInput;
 
     void Awake()
     {
@@ -44,36 +47,58 @@ public class PlayerMuve : NetworkBehaviour
 
     void OnEnable()
     {
-        inputActions.Player.Enable();
-        LockCursor(); // trava o cursor ao iniciar
+        if(authority)
+        {
+            inputActions.Player.Enable();
+            LockCursor(); // trava o cursor ao iniciar
+        }
+        
     }
 
     void OnDisable()
     {
-        inputActions.Player.Disable();
-        UnlockCursor(); // desbloqueia ao desabilitar
+        if (!authority)
+        {
+            inputActions.Player.Disable();
+            UnlockCursor();// desbloqueia ao desabilitar
+        }
+        
+    }
+    void Start()
+    {
+        if (!authority)
+        {
+            cameraHolder.gameObject.SetActive(false);
+        }
     }
 
     void Update()
     {
+        if (!authority) return;//impede a entrada remota 
         // Movimento do mouse (rotação do jogador + câmera)
         HandleCursor();
         RotateView();
 
         // Movimento no plano XZ
-        Vector3 move = transform.right * inputMove.x + transform.forward * inputMove.y;
-        controller.Move(move * moveSpeed * Time.deltaTime);
+        // Envia entrada para o servidor
+        Vector3 moveDir = transform.right * inputMove.x + transform.forward * inputMove.y;
+        CmdMove(moveDir, jumpQueued);
+        jumpQueued = false;
+    }
+    [Command]
+    void CmdMove(Vector3 moveInput, bool jump)
+    {
+        if (!controller) return;
 
-        // Gravidade
+        // Aplica movimento recebido
+        Vector3 move = moveInput * moveSpeed * Time.deltaTime;
+        controller.Move(move);
+
         if (controller.isGrounded && velocity.y < 0)
-            velocity.y = -2f;
+        velocity.y = -2f;
 
-        // Pular
-        if (jumpQueued && controller.isGrounded)
-        {
-            velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
-            jumpQueued = false;
-        }
+        if (jump && controller.isGrounded)
+        velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
 
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);

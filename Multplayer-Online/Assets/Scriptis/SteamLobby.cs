@@ -91,11 +91,18 @@ public class SteamLobby : MonoBehaviour
         {
             networkManager.networkAddress = hostAddress;
             networkManager.StartClient();
+            StartCoroutine(WaitForGameManager());
         }
         else
         {
             Debug.LogError("Erro ao conectar: HostAddress vazio.");
         }
+    }
+    private IEnumerator WaitForGameManager()
+    {
+    yield return new WaitUntil(() => GameManager.Instance != null);
+
+    GameManager.Instance.InitializeMenus(); // ou TargetSyncState se for necessário
     }
 }
 /*//Todo mundo tem acesso a isso
