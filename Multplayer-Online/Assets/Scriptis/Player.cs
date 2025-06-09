@@ -16,12 +16,12 @@ public class Player : NetworkBehaviour
     public int indexPlayer;
     public float bulletSpeed = 10; //Velocidade base do projetil
     private bool canShoot = true;  //Limitador dos tiros
+    public int characterType;
 
     [ClientCallback]
     private void Update()
     {
         if (!isOwned) { return; }
-
         if (Mouse.current.leftButton.isPressed && GameManager.Instance.timerActive == true)//Disparo
         {
             if (canShoot == true)

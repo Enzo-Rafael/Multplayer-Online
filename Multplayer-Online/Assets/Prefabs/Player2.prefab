@@ -189,9 +189,8 @@ GameObject:
   - component: {fileID: 6987514520928493854}
   - component: {fileID: -8040513799761758714}
   - component: {fileID: 5309585786415385651}
-  - component: {fileID: 8257967433595358721}
-  - component: {fileID: 4080035719052093261}
   - component: {fileID: 5060299567200649757}
+  - component: {fileID: 2577937186447997192}
   m_Layer: 7
   m_Name: Player2
   m_TagString: Player2
@@ -314,6 +313,7 @@ MonoBehaviour:
   myCam: {fileID: 4855671769582880989}
   indexPlayer: 0
   bulletSpeed: 15
+  characterType: 2
 --- !u!114 &6987514520928493854
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -390,84 +390,6 @@ CharacterController:
   m_SkinWidth: 0.02
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &8257967433595358721
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4585873871768750910}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!114 &4080035719052093261
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4585873871768750910}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f81b59082839c2e40938767457bb91ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  characterController: {fileID: 5309585786415385651}
-  ControllerUIPrefab: {fileID: 644766297742565710, guid: 7beee247444994f0281dadde274cc4af, type: 3}
-  moveKeys:
-    Forward: 119
-    Back: 115
-    StrafeLeft: 97
-    StrafeRight: 100
-    TurnLeft: 113
-    TurnRight: 101
-    Jump: 32
-  optionsKeys:
-    MouseSteer: 109
-    AutoRun: 114
-    ToggleUI: 117
-  controlOptions: 4
-  maxMoveSpeed: 8
-  inputSensitivity: 2
-  inputGravity: 2
-  maxTurnSpeed: 150
-  turnAcceleration: 3
-  initialJumpSpeed: 2.5
-  maxJumpSpeed: 3.5
-  jumpAcceleration: 4
-  runtimeData:
-    _horizontal: 0
-    _vertical: 0
-    _turnSpeed: 0
-    _jumpSpeed: 0
-    _animVelocity: 0
-    _animRotation: 0
-    _mouseInputX: 0
-    _mouseSensitivity: 0
-    _groundState: 0
-    _direction: {x: 0, y: 0, z: 0}
-    _velocity: {x: 0, y: 0, z: 0}
-    _controllerUI: {fileID: 0}
 --- !u!114 &5060299567200649757
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -485,6 +407,27 @@ MonoBehaviour:
   syncInterval: 0
   profileImage: {fileID: 6785859187186996321}
   displayName: {fileID: 725160644016483367}
+--- !u!114 &2577937186447997192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4585873871768750910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d12ee6860fe23b2438dfa603a6f8993a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  moveSpeed: 5
+  jumpForce: 1.5
+  gravity: -9.81
+  cameraHolder: {fileID: 8221947080521263269}
+  mouseSensitivity: 1
+  clampAngle: 80
 --- !u!1 &4855671769582880989
 GameObject:
   m_ObjectHideFlags: 0

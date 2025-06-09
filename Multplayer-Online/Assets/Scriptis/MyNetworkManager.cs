@@ -4,11 +4,21 @@ using Mirror;
 using Steamworks;
 public class MyNetworkManager : NetworkManager
 {
-    /*public override void OnStartHost()//Acontece quando o Host Inicia
+    public override void Awake()
+    {
+        base.Awake();
+        NetworkClient.RegisterHandler<PingMessage>(OnPingMessage);
+    }
+
+    void OnPingMessage(PingMessage msg)
+    {
+        // apenas recebe, nada a fazer
+    }
+    public override void OnStartHost()//Acontece quando o Host Inicia
     {
         base.OnStartHost();
-        //GameManager.Instance.menu[6].SetActive(true);
-    }*/
+        NetworkServer.disconnectInactiveConnections = false;
+    }
 
     public override void OnServerConnect(NetworkConnectionToClient conn)//Acontece quando o Server Inicia
     {
@@ -23,26 +33,17 @@ public class MyNetworkManager : NetworkManager
     {
 
         base.OnClientConnect();
-        GameManager.Instance.SetCanvas();
-        GameManager.Instance.ShowStart();
+        GameManager.Instance.StartCoroutine(GameManager.Instance.SetCanvasSafe());
     }
     public override void OnClientDisconnect()//Acontece quando o Cliente desconecta
     {
 
         Debug.Log("Desonectei");
+        if (GameManager.Instance != null)
+        {
         GameManager.Instance.DesActiveMneu();
         GameManager.Instance.CheckCharactersDisponibility();
+        }
         base.OnClientDisconnect();
-    }
-    public override void OnServerAddPlayer(NetworkConnectionToClient conn)//Serve para pegar o Steam ID do jogador
-    {
-        base.OnServerAddPlayer(conn);
-        CSteamID steamID = SteamMatchmaking.GetLobbyMemberByIndex(SteamLobby.iD,
-        numPlayers - 1);
-        GameManager.Instance.steamIdGM = steamID;
-        var playerName = conn.identity.GetComponent<PlayerName>();
-        if(playerName != null)playerName.SetID(steamID.m_SteamID);
-
-        
     }
 }

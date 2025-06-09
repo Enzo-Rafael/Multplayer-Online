@@ -631,10 +631,9 @@ GameObject:
   - component: {fileID: -8596890886049850154}
   - component: {fileID: -3722474120154572700}
   - component: {fileID: 4897088647536049063}
-  - component: {fileID: 6542646133456685389}
-  - component: {fileID: 996242863293071507}
-  - component: {fileID: 2540652150335807023}
   - component: {fileID: 3150846101280911978}
+  - component: {fileID: 8767864739753932816}
+  - component: {fileID: 7373533109304387603}
   m_Layer: 6
   m_Name: Player1
   m_TagString: Player1
@@ -734,6 +733,7 @@ MonoBehaviour:
   myCam: {fileID: 1383194418852117865}
   indexPlayer: 0
   bulletSpeed: 15
+  characterType: 1
 --- !u!114 &-8596890886049850154
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -801,7 +801,7 @@ CharacterController:
     m_Bits: 0
   m_LayerOverridePriority: 0
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Height: 2
   m_Radius: 0.5
@@ -810,34 +810,45 @@ CharacterController:
   m_SkinWidth: 0.02
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &6542646133456685389
-Rigidbody:
+--- !u!114 &3150846101280911978
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7400927543503890618}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 80
-  m_CollisionDetection: 0
---- !u!136 &996242863293071507
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf2218634c0b02f47b9584d989845bd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  profileImage: {fileID: 1800374295726577105}
+  displayName: {fileID: 490695582383976496}
+--- !u!114 &8767864739753932816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7400927543503890618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d12ee6860fe23b2438dfa603a6f8993a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  moveSpeed: 5
+  jumpForce: 1.5
+  gravity: -9.81
+  cameraHolder: {fileID: 5145694859948203938}
+  mouseSensitivity: 1
+  clampAngle: 80
+--- !u!136 &7373533109304387603
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -860,74 +871,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2540652150335807023
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7400927543503890618}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f81b59082839c2e40938767457bb91ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  characterController: {fileID: 4897088647536049063}
-  ControllerUIPrefab: {fileID: 644766297742565710, guid: 7beee247444994f0281dadde274cc4af, type: 3}
-  moveKeys:
-    Forward: 119
-    Back: 115
-    StrafeLeft: 97
-    StrafeRight: 100
-    TurnLeft: 113
-    TurnRight: 101
-    Jump: 32
-  optionsKeys:
-    MouseSteer: 109
-    AutoRun: 114
-    ToggleUI: 117
-  controlOptions: 4
-  maxMoveSpeed: 8
-  inputSensitivity: 2
-  inputGravity: 2
-  maxTurnSpeed: 150
-  turnAcceleration: 3
-  initialJumpSpeed: 2.5
-  maxJumpSpeed: 3.5
-  jumpAcceleration: 4
-  runtimeData:
-    _horizontal: 0
-    _vertical: 0
-    _turnSpeed: 0
-    _jumpSpeed: 0
-    _animVelocity: 0
-    _animRotation: 0
-    _mouseInputX: 0
-    _mouseSensitivity: 0
-    _groundState: 0
-    _direction: {x: 0, y: 0, z: 0}
-    _velocity: {x: 0, y: 0, z: 0}
-    _controllerUI: {fileID: 0}
---- !u!114 &3150846101280911978
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7400927543503890618}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf2218634c0b02f47b9584d989845bd5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  profileImage: {fileID: 1800374295726577105}
-  displayName: {fileID: 490695582383976496}
 --- !u!1 &7858704474455047567
 GameObject:
   m_ObjectHideFlags: 0

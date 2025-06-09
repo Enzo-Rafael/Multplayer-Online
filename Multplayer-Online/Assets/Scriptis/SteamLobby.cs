@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using Mirror;
 using Steamworks;
+using System.Collections;
+using Telepathy;
 
 public class SteamLobby : MonoBehaviour
 {
@@ -16,7 +18,7 @@ public class SteamLobby : MonoBehaviour
     public ulong CurrentLobbyID;
     private const string HostAddressKey = "HostAddress";
     private MyNetworkManager networkManager;
-    public static CSteamID iD { get; private set;  }
+    public static CSteamID iD { get; private set; }
 
     private void Start()
     {
@@ -53,7 +55,7 @@ public class SteamLobby : MonoBehaviour
             SteamUser.GetSteamID().ToString());
         SteamMatchmaking.SetLobbyData(new CSteamID(callback.m_ulSteamIDLobby),
             "name",
-            SteamFriends.GetPersonaName().ToString()+ "'s Lobby");
+            SteamFriends.GetPersonaName().ToString() + "'s Lobby");
     }
 
     private void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t callback)//Serve para solicitar entrada no lobby
@@ -63,7 +65,40 @@ public class SteamLobby : MonoBehaviour
 
     private void OnLobbyEntered(LobbyEnter_t callback)
     {
-        //Todo mundo tem acesso a isso
+        buttons.SetActive(false);
+        CurrentLobbyID = callback.m_ulSteamIDLobby;
+
+        uiTxt.gameObject.SetActive(true);
+        uiTxt.text = SteamMatchmaking.GetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), "name");
+
+        if (NetworkServer.active) return;
+
+        StartCoroutine(WaitAndConnectToHost());
+    }
+    private IEnumerator WaitAndConnectToHost()
+    {
+        string hostAddress = "";
+
+        for (int i = 0; i < 10; i++)
+        {
+            hostAddress = SteamMatchmaking.GetLobbyData(new CSteamID(CurrentLobbyID), HostAddressKey);
+            if (!string.IsNullOrEmpty(hostAddress))
+                break;
+            yield return new WaitForSeconds(0.5f); // espera meio segundo
+        }
+
+        if (!string.IsNullOrEmpty(hostAddress))
+        {
+            networkManager.networkAddress = hostAddress;
+            networkManager.StartClient();
+        }
+        else
+        {
+            Debug.LogError("Erro ao conectar: HostAddress vazio.");
+        }
+    }
+}
+/*//Todo mundo tem acesso a isso
         buttons.SetActive(false);
         CurrentLobbyID = callback.m_ulSteamIDLobby;
         uiTxt.gameObject.SetActive(true);
@@ -76,6 +111,4 @@ public class SteamLobby : MonoBehaviour
                 new CSteamID(callback.m_ulSteamIDLobby),
                 HostAddressKey);
         networkManager.StartClient();
-        buttons.SetActive(false);
-        }
-}
+        buttons.SetActive(false);*/

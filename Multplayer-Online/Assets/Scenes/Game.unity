@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 1959018}
   - component: {fileID: 1959017}
   - component: {fileID: 1959019}
+  - component: {fileID: 1959020}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -239,15 +240,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 1959013}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea368fb6f27ec2f40a40e20977992b9c, type: 3}
+  m_Script: {fileID: 11500000, guid: e6e55fca1f4e4844593a3dd65a3ecb39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Channels: 0200000001000000
-  Timeout: 25
-  SteamAppID: 480
+  Timeout: 5000
   AllowSteamRelay: 1
   UseNextGenSteamNetworking: 1
-  SteamUserID: 0
+--- !u!114 &1959020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1959013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10ee3964556bcfd43bf1ac0d6a734d73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &99598510
 GameObject:
   m_ObjectHideFlags: 0
@@ -1117,6 +1128,8 @@ GameObject:
   - component: {fileID: 286744258}
   - component: {fileID: 286744260}
   - component: {fileID: 286744261}
+  - component: {fileID: 286744263}
+  - component: {fileID: 286744262}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1136,7 +1149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdc0e2f0f57ac28459d96a1a942c3b32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncDirection: 1
+  syncDirection: 0
   syncMode: 0
   syncInterval: 0
   menu:
@@ -1211,6 +1224,36 @@ MonoBehaviour:
   characters:
   - {fileID: 11400000, guid: f970289d339afe14fabf47ee544a2ac1, type: 2}
   - {fileID: 11400000, guid: 60e772e7f6d156f44850d28dc82f6b35, type: 2}
+--- !u!114 &286744262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 286744257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6d9ae3c3e57e3d42ac0e38eb68caa3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+--- !u!114 &286744263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 286744257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9be1539bbc436d4c90a0b8d54e5c0df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
 --- !u!1 &287577534
 GameObject:
   m_ObjectHideFlags: 0
