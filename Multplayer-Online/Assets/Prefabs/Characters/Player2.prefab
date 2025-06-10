@@ -192,6 +192,7 @@ GameObject:
   - component: {fileID: 6987514520928493854}
   - component: {fileID: -8040513799761758714}
   - component: {fileID: 5309585786415385651}
+  - component: {fileID: 7648946019414772942}
   m_Layer: 7
   m_Name: Player2
   m_TagString: Player2
@@ -383,7 +384,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncDirection: 1
   syncMode: 0
-  syncInterval: 0
+  syncInterval: 0.05
   target: {fileID: 787373654994701423}
   syncPosition: 1
   syncRotation: 1
@@ -393,7 +394,7 @@ MonoBehaviour:
   interpolatePosition: 1
   interpolateRotation: 1
   interpolateScale: 1
-  coordinateSpace: 0
+  coordinateSpace: 1
   timelineOffset: 1
   showGizmos: 0
   showOverlay: 0
@@ -445,6 +446,21 @@ CharacterController:
   m_SkinWidth: 0.02
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7648946019414772942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4585873871768750910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6d9ae3c3e57e3d42ac0e38eb68caa3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
 --- !u!1 &4855671769582880989
 GameObject:
   m_ObjectHideFlags: 0

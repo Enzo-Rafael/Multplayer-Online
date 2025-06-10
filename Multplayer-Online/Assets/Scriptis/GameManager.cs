@@ -185,25 +185,6 @@ public class GameManager : NetworkBehaviour
         player02 = GameObject.FindWithTag("Player2") != null;
     }
 
-    /*[Command]
-    public void CheckCharactersDisponibility()//Controle de qual jogador vai ser qual
-    {
-        player01 = false;
-        player02 = false;
-        foreach (var conn in NetworkServer.connections)
-        {
-            if (conn.Value.identity != null)
-            {
-                var player = conn.Value.identity.GetComponent<Player>();
-                if (player != null)
-                {
-                    if (player.characterType == 1) player01 = true;
-                    if (player.characterType == 2) player02 = true;
-                }
-            }
-        }
-    }*/
-
     [Server]
     public void SetIndexCurrent(int index)//Serve para ajustar o index do personagem atalmente selecionado
     {

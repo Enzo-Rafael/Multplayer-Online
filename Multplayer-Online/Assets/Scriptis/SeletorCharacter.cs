@@ -61,6 +61,7 @@ public class SeletorCharacter : NetworkBehaviour
    
     public void Select()
     {//Confirma a opção excolhida de qual persongem vai ser jogado
+        if (!NetworkClient.ready) return;
         if (GameManager.Instance == null)
         {
             Debug.LogWarning("GameManager ainda não foi sincronizado.");
@@ -100,7 +101,7 @@ public class SeletorCharacter : NetworkBehaviour
         );
 
         NetworkServer.Spawn(characterInstance, sender);
-        NetworkServer.SetClientReady(sender);
+        NetworkServer.SetClientReady(sender);//!!! isso pode gerar um conflito
         //----------------------------------------------
         GameManager.Instance.UpdatePlayerSlots();
         // Atribui autoridade explicitamente

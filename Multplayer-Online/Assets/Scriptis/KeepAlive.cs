@@ -16,12 +16,10 @@ public class KeepAlive : NetworkBehaviour
         if (!authority || !NetworkClient.ready) return;
 
         timer += Time.deltaTime;
-        if (timer > 10f)
+        if (timer > 5f)
         {
             NetworkClient.Send(new PingMessage());
             timer = 0;
         }
     }
 }
-
-public struct PingMessage : NetworkMessage {}

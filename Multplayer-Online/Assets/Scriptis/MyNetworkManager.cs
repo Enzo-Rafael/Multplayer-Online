@@ -2,7 +2,8 @@ using UnityEngine;
 using Unity.VisualScripting;
 using Mirror;
 using Steamworks;
-public class MyNetworkManager : NetworkManager
+
+public class MyNetworkManager : NetworkManager 
 {
     [Header("Custom Prefabs")]
     public GameObject gameManagerPrefab;
@@ -26,7 +27,10 @@ public class MyNetworkManager : NetworkManager
     public override void OnStartServer()
     {
         base.OnStartServer();
-
+        NetworkServer.RegisterHandler<PingMessage>((conn, msg) =>
+        {
+            // apenas recebe o ping, nada a fazer
+        });
         var gm = Instantiate(gameManagerPrefab);
         NetworkServer.Spawn(gm);
 
@@ -44,8 +48,9 @@ public class MyNetworkManager : NetworkManager
     }
     public override void OnClientConnect()//Acontece quando o Cliente conecta
     {
-
+        Debug.Log("2");
         base.OnClientConnect();
+        //NetworkClient.Ready();//!!! por que é chamado 2 veses 
         StartCoroutine(WaitForGameManager());
     }
 
@@ -56,7 +61,7 @@ public class MyNetworkManager : NetworkManager
         {
             timeout -= Time.deltaTime;
             yield return null;
-        } 
+        }
 
         if (GameManager.Instance != null)
         {

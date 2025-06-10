@@ -12,6 +12,7 @@ public class SteamIdentitySender : NetworkBehaviour
 {
     public override void OnStartAuthority()
     {
+        if (!NetworkClient.ready) return;
         base.OnStartLocalPlayer();
         CmdSendSteamID(SteamUser.GetSteamID().m_SteamID);
         Debug.Log("id: "+SteamUser.GetSteamID().m_SteamID);

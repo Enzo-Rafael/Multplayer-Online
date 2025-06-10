@@ -21,7 +21,7 @@ public class Player : NetworkBehaviour
     [ClientCallback]
     private void Update()
     {
-        if (!isOwned) { return; }
+        if (!isOwned || !NetworkClient.ready) { return; }
         if (Mouse.current.leftButton.isPressed && GameManager.Instance.timerActive == true)//Disparo
         {
             if (canShoot == true)

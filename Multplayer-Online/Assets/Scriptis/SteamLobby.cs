@@ -22,7 +22,7 @@ public class SteamLobby : MonoBehaviour
 
     private void Start()
     {
-        networkManager = FindFirstObjectByType<MyNetworkManager>();
+        networkManager = FindAnyObjectByType<MyNetworkManager>();
 
         if (!SteamManager.Initialized) { return; }
 
@@ -41,11 +41,11 @@ public class SteamLobby : MonoBehaviour
     private void OnLobbyCreated(LobbyCreated_t callback)//Serve para criar o Lobby
     {
         if (callback.m_eResult != EResult.k_EResultOK)
-    {
-        buttons.SetActive(true);
-        Debug.LogError("Falha ao criar lobby.");
-        return;
-    }
+        {
+            buttons.SetActive(true);
+            Debug.LogError("Falha ao criar lobby.");
+            return;
+        }
 
         iD = new CSteamID(callback.m_ulSteamIDLobby);
         StartCoroutine(WaitForServerStartAndSetupLobby());
@@ -53,7 +53,7 @@ public class SteamLobby : MonoBehaviour
 
     private IEnumerator WaitForServerStartAndSetupLobby()
     {
-    networkManager.StartHost();
+        networkManager.StartHost();
 
         // Espera até o servidor estar ativo
         float timeout = 5f;
@@ -105,8 +105,10 @@ public class SteamLobby : MonoBehaviour
 
         if (!string.IsNullOrEmpty(hostAddress))
         {
+            Debug.Log("1");
             networkManager.networkAddress = hostAddress;
             networkManager.StartClient();
+            NetworkClient.Ready();//!!!
             StartCoroutine(WaitForGameManager());
         }
         else
@@ -116,22 +118,8 @@ public class SteamLobby : MonoBehaviour
     }
     private IEnumerator WaitForGameManager()
     {
-    yield return new WaitUntil(() => GameManager.Instance != null);
+       yield return new WaitUntil(() => GameManager.Instance != null);
 
        GameManager.Instance.InitializeMenus(); // ou TargetSyncState se for necessário
     }
 }
-/*//Todo mundo tem acesso a isso
-        buttons.SetActive(false);
-        CurrentLobbyID = callback.m_ulSteamIDLobby;
-        uiTxt.gameObject.SetActive(true);
-        uiTxt.text = SteamMatchmaking.GetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), "name");
-
-
-        //Só os clients
-        if (NetworkServer.active) { return; }
-        networkManager.networkAddress = SteamMatchmaking.GetLobbyData(
-                new CSteamID(callback.m_ulSteamIDLobby),
-                HostAddressKey);
-        networkManager.StartClient();
-        buttons.SetActive(false);*/

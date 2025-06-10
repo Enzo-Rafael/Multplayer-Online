@@ -17,6 +17,7 @@ public class PlayerName : NetworkBehaviour
     protected Callback<AvatarImageLoaded_t> avatarILoad;
     public override void OnStartAuthority()//Quando a autoridade comer sera executado
     {
+        if (!NetworkClient.ready) return;
         StartCoroutine(SetSteamIdWithDelay());
     }
 

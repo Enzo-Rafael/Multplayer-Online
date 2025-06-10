@@ -27,7 +27,7 @@ public class PlayerMuve : NetworkBehaviour
     private Vector3 velocity;
     private float xRotation = 0f;
     private bool jumpQueued = false;
-    private bool _canMove = false;
+    //private bool _canMove = false;
 
     public override void OnStartAuthority()
     {
@@ -44,14 +44,14 @@ public class PlayerMuve : NetworkBehaviour
 
         inputActions.Player.Enable();
         LockCursor();
-        _canMove = true;
+        //_canMove = true;
         if (cameraHolder != null)
             cameraHolder.gameObject.SetActive(true);
     }
 
     public override void OnStopAuthority()
     {
-        _canMove = false;
+        //_canMove = false;
         if (inputActions != null)
             inputActions.Player.Disable();
         UnlockCursor();
@@ -61,32 +61,22 @@ public class PlayerMuve : NetworkBehaviour
 
     void Update()
     {
-        if (_canMove != true ||!isOwned || !NetworkClient.ready) return;
+        if (/*_canMove != true ||*/  !authority || !NetworkClient.ready) return;//
 
         HandleCursor();
         RotateView();
 
         Vector3 moveDir = transform.right * inputMove.x + transform.forward * inputMove.y;
-        CmdMove(moveDir, jumpQueued);
-        jumpQueued = false;
-    }
-
-    [Command]
-    void CmdMove(Vector3 moveInput, bool jump)
-    {
-        if (!controller) return;
-
-        Vector3 move = moveInput * moveSpeed * Time.deltaTime;
-        controller.Move(move);
-
         if (controller.isGrounded && velocity.y < 0)
             velocity.y = -2f;
 
-        if (jump && controller.isGrounded)
+        if (jumpQueued && controller.isGrounded)
             velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
 
+        jumpQueued = false;
         velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
+
+        controller.Move((moveDir * moveSpeed + velocity) * Time.deltaTime);
     }
 
     void RotateView()
