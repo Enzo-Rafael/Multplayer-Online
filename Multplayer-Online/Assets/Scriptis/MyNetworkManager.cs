@@ -40,7 +40,7 @@ public class MyNetworkManager : NetworkManager
         Debug.Log("Ola, conectei ");
         //GameManager.Instance.startPos = NetworkManager.startPositions;
 
-        GameManager.Instance?.CheckCharactersDisponibility();
+        //GameManager.Instance?.CheckCharactersDisponibility();
     }
     public override void OnClientConnect()//Acontece quando o Cliente conecta
     {
@@ -74,13 +74,14 @@ public class MyNetworkManager : NetworkManager
         if (GameManager.Instance != null)
         {
             GameManager.Instance.DesactiveMenus();
-            GameManager.Instance.CheckCharactersDisponibility();
+            //GameManager.Instance.CheckCharactersDisponibility();
         }
         base.OnClientDisconnect();
     }
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)//Chamada quando o server adiciona um player
     {
         base.OnServerAddPlayer(conn);
+        GameManager.Instance?.UpdatePlayerSlots();
         //if (GameManager.Instance != null)GameManager.Instance.TargetSyncState(conn);
     }
 }

@@ -70,10 +70,12 @@ public class SeletorCharacter : NetworkBehaviour
         {
             Debug.LogError("Preview de personagem não encontrado.");
             return;
-        }
-        CmdCheckCharactersDisponibility();//Faz uma chamada no gama manager para ver se alguns do personagens esta em cena
-        if ((currentCharacterIndex == 0 && GameManager.Instance.player01 == false) ||
-        (currentCharacterIndex == 1 && GameManager.Instance.player02 == false))
+        }//Faz uma chamada no gama manager para ver se alguns do personagens esta em cena
+        // Verifica os SyncVars diretamente (já sincronizados do servidor)
+        bool isTaken = (currentCharacterIndex == 0 && GameManager.Instance.player01) ||
+                       (currentCharacterIndex == 1 && GameManager.Instance.player02);
+
+        if (!isTaken)
         {
             CmdSelect(currentCharacterIndex, identity.connectionToClient);
         }
@@ -82,11 +84,6 @@ public class SeletorCharacter : NetworkBehaviour
             BtnChangeLeft();
         }
 
-    }
-    [Command(requiresAuthority = true)]
-    public void CmdCheckCharactersDisponibility()
-    {
-    GameManager.Instance.CheckCharactersDisponibility();
     }
     [Command(requiresAuthority = false)]
     public void CmdSelect(int characterIndex, NetworkConnectionToClient sender)
@@ -105,6 +102,7 @@ public class SeletorCharacter : NetworkBehaviour
         NetworkServer.Spawn(characterInstance, sender);
         NetworkServer.SetClientReady(sender);
         //----------------------------------------------
+        GameManager.Instance.UpdatePlayerSlots();
         // Atribui autoridade explicitamente
         //characterInstance.GetComponent<NetworkIdentity>().AssignClientAuthority(sender);// Atribui autoridade ao cliente
         TargetOnCharacterSpawned(sender, characterIndex);// Informa ao cliente para ocultar seleção e ativar menus

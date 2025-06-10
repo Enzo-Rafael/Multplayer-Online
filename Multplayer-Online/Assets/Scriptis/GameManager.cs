@@ -176,8 +176,16 @@ public class GameManager : NetworkBehaviour
     {
         timerActive = true;
     }
+    
+    public void UpdatePlayerSlots()
+    {
+        if (!isServer) return;
 
-    [Server]
+        player01 = GameObject.FindWithTag("Player1") != null;
+        player02 = GameObject.FindWithTag("Player2") != null;
+    }
+
+    /*[Command]
     public void CheckCharactersDisponibility()//Controle de qual jogador vai ser qual
     {
         player01 = false;
@@ -194,7 +202,7 @@ public class GameManager : NetworkBehaviour
                 }
             }
         }
-    }
+    }*/
 
     [Server]
     public void SetIndexCurrent(int index)//Serve para ajustar o index do personagem atalmente selecionado
