@@ -50,7 +50,7 @@ public class MyNetworkManager : NetworkManager
     {
         Debug.Log("2");
         base.OnClientConnect();
-        //NetworkClient.Ready();//!!! por que é chamado 2 veses 
+        if (!NetworkClient.ready)NetworkClient.Ready();//!!! por que é chamado 2 veses 
         StartCoroutine(WaitForGameManager());
     }
 
@@ -76,7 +76,7 @@ public class MyNetworkManager : NetworkManager
     {
 
         Debug.Log("Desonectei");
-        if (GameManager.Instance != null)
+        if (GameManager.Instance != null && NetworkClient.active)
         {
             GameManager.Instance.DesactiveMenus();
             //GameManager.Instance.CheckCharactersDisponibility();

@@ -23,7 +23,7 @@ public class SteamLobby : MonoBehaviour
     private void Start()
     {
         networkManager = FindAnyObjectByType<MyNetworkManager>();
-
+        Debug.Log(networkManager);
         if (!SteamManager.Initialized) { return; }
 
         lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);

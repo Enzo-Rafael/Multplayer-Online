@@ -27,7 +27,7 @@ public class Player : NetworkBehaviour
             if (canShoot == true)
             {
                 canShoot = false;
-                CmdSpawnBullet();
+                
                 StartCoroutine(Wait());
 
             }
@@ -45,16 +45,19 @@ public class Player : NetworkBehaviour
         myCam.SetActive(true);
     }
    
-    [Command]
+    /*[Command]
     void CmdSpawnBullet() //comando que instncia o projétil
     {
         GameObject bulletClone = Instantiate(bullet, bulletSpawnPoint.transform.position, transform.rotation);
         bulletClone.GetComponent<Rigidbody>().linearVelocity = bulletSpawnPoint.transform.up * bulletSpeed;
         NetworkServer.Spawn(bulletClone);
-    }
+    }*/
 
     IEnumerator Wait()//Cooldown para o proximo disparo
     {
+        GameObject bulletClone = Instantiate(bullet, bulletSpawnPoint.transform.position, transform.rotation);
+        bulletClone.GetComponent<Rigidbody>().linearVelocity = bulletSpawnPoint.transform.up * bulletSpeed;
+        NetworkServer.Spawn(bulletClone);
         yield return new WaitForSeconds(1f);
         canShoot = true;
     }
