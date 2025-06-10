@@ -6,7 +6,7 @@ public class NetWorkClintSend : MonoBehaviour
     void Start()
     {
         
-    }
+    }//Nota não dei pq isso existe
 
     // Update is called once per frame
     void Update()

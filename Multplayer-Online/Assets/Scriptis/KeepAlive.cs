@@ -13,7 +13,11 @@ public class KeepAlive : NetworkBehaviour
 
     void Update()
     {
-        if (!authority || !NetworkClient.ready) return;
+        if (!authority || !NetworkClient.isConnected || !NetworkClient.ready)
+        {
+            Debug.LogWarning("Tentando enviar PingMessage sem estar conectado.");
+            return;
+        }
 
         timer += Time.deltaTime;
         if (timer > 5f)

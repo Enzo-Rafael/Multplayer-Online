@@ -24,7 +24,7 @@ public class MyNetworkManager : NetworkManager
         base.OnStartHost();
         NetworkServer.disconnectInactiveConnections = false;
     }
-    public override void OnStartServer()
+    public override void OnStartServer()//Acontece quando o Server Inicia
     {
         base.OnStartServer();
         NetworkServer.RegisterHandler<PingMessage>((conn, msg) =>
