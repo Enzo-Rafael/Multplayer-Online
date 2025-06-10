@@ -13,7 +13,7 @@ public class KeepAlive : NetworkBehaviour
 
     void Update()
     {
-        if (!isLocalPlayer) return;
+        if (!authority || !NetworkClient.ready) return;
 
         timer += Time.deltaTime;
         if (timer > 10f)

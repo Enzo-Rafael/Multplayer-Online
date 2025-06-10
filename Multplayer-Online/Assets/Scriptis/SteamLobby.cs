@@ -22,7 +22,7 @@ public class SteamLobby : MonoBehaviour
 
     private void Start()
     {
-        networkManager = GetComponent<MyNetworkManager>();
+        networkManager = FindFirstObjectByType<MyNetworkManager>();
 
         if (!SteamManager.Initialized) { return; }
 
@@ -41,23 +41,39 @@ public class SteamLobby : MonoBehaviour
     private void OnLobbyCreated(LobbyCreated_t callback)//Serve para criar o Lobby
     {
         if (callback.m_eResult != EResult.k_EResultOK)
-        {
-            buttons.SetActive(true);
-            return;
-        }
-        iD = new CSteamID(callback.m_ulSteamIDLobby);
-
-        networkManager.StartHost();
-
-        SteamMatchmaking.SetLobbyData(
-            iD,
-            HostAddressKey,
-            SteamUser.GetSteamID().ToString());
-        SteamMatchmaking.SetLobbyData(new CSteamID(callback.m_ulSteamIDLobby),
-            "name",
-            SteamFriends.GetPersonaName().ToString() + "'s Lobby");
+    {
+        buttons.SetActive(true);
+        Debug.LogError("Falha ao criar lobby.");
+        return;
     }
 
+        iD = new CSteamID(callback.m_ulSteamIDLobby);
+        StartCoroutine(WaitForServerStartAndSetupLobby());
+    } 
+
+    private IEnumerator WaitForServerStartAndSetupLobby()
+    {
+    networkManager.StartHost();
+
+        // Espera até o servidor estar ativo
+        float timeout = 5f;
+        while (!NetworkServer.active && timeout > 0f)
+        {
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
+
+        if (!NetworkServer.active)
+        {
+            Debug.LogError("StartHost falhou! NetworkServer não está ativo.");
+            yield break;
+        }
+
+        SteamMatchmaking.SetLobbyData(iD, HostAddressKey, SteamUser.GetSteamID().ToString());
+        SteamMatchmaking.SetLobbyData(iD, "name", SteamFriends.GetPersonaName() + "'s Lobby");
+
+        Debug.Log("Servidor iniciado e lobby configurado.");
+    }
     private void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t callback)//Serve para solicitar entrada no lobby
     {
         SteamMatchmaking.JoinLobby(callback.m_steamIDLobby);
@@ -102,7 +118,7 @@ public class SteamLobby : MonoBehaviour
     {
     yield return new WaitUntil(() => GameManager.Instance != null);
 
-    GameManager.Instance.InitializeMenus(); // ou TargetSyncState se for necessário
+       GameManager.Instance.InitializeMenus(); // ou TargetSyncState se for necessário
     }
 }
 /*//Todo mundo tem acesso a isso

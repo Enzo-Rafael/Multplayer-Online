@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Mirror;
 using Steamworks;
 using TMPro;
@@ -16,7 +17,14 @@ public class PlayerName : NetworkBehaviour
     protected Callback<AvatarImageLoaded_t> avatarILoad;
     public override void OnStartAuthority()//Quando a autoridade comer sera executado
     {
-        CmdSetSteamID(GameManager.Instance.steamIdGM.m_SteamID);
+        StartCoroutine(SetSteamIdWithDelay());
+    }
+
+    private IEnumerator SetSteamIdWithDelay()
+{
+    yield return new WaitUntil(() => SteamManager.Initialized);
+    yield return new WaitForSeconds(0.1f);
+    CmdSetSteamID(SteamUser.GetSteamID().m_SteamID);
     }
 
     [Command]
@@ -32,8 +40,10 @@ public class PlayerName : NetworkBehaviour
 
     private void HandleSteamIdUpdate(ulong oldID, ulong newID)
     {
-        var cSteamID = new CSteamID(newID);
+        if (!SteamManager.Initialized) return;
 
+        var cSteamID = new CSteamID(newID);
+        
         displayName.text = SteamFriends.GetFriendPersonaName(cSteamID);
 
         int imageID = SteamFriends.GetLargeFriendAvatar(cSteamID);

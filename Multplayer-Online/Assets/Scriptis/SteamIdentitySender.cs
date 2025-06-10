@@ -10,7 +10,7 @@ using Steamworks;
 
 public class SteamIdentitySender : NetworkBehaviour
 {
-    public override void OnStartLocalPlayer()
+    public override void OnStartAuthority()
     {
         base.OnStartLocalPlayer();
         CmdSendSteamID(SteamUser.GetSteamID().m_SteamID);

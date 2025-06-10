@@ -27,8 +27,10 @@ public class MyNetworkManager : NetworkManager
     {
         base.OnStartServer();
 
-        gameManagerInstance = Instantiate(gameManagerPrefab).GetComponent<GameManager>();
-        NetworkServer.Spawn(gameManagerInstance.gameObject);
+        var gm = Instantiate(gameManagerPrefab);
+        NetworkServer.Spawn(gm);
+
+        gameManagerInstance = gm.GetComponent<GameManager>();
         GameManager.Instance = gameManagerInstance;
     }
 
@@ -39,13 +41,31 @@ public class MyNetworkManager : NetworkManager
         //GameManager.Instance.startPos = NetworkManager.startPositions;
 
         GameManager.Instance?.CheckCharactersDisponibility();
-
     }
     public override void OnClientConnect()//Acontece quando o Cliente conecta
     {
 
         base.OnClientConnect();
-        GameManager.Instance.StartCoroutine(GameManager.Instance.SetCanvasSafe());
+        StartCoroutine(WaitForGameManager());
+    }
+
+    private System.Collections.IEnumerator WaitForGameManager()
+    {
+        float timeout = 5f;
+        while (GameManager.Instance == null && timeout > 0f)
+        {
+            timeout -= Time.deltaTime;
+            yield return null;
+        } 
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.StartCoroutine(GameManager.Instance.SetCanvasSafe());
+        }
+        else
+        {
+            Debug.LogWarning("GameManager.Instance não foi encontrado no cliente.");
+        }
     }
     public override void OnClientDisconnect()//Acontece quando o Cliente desconecta
     {
@@ -61,6 +81,6 @@ public class MyNetworkManager : NetworkManager
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)//Chamada quando o server adiciona um player
     {
         base.OnServerAddPlayer(conn);
-        if (GameManager.Instance != null)GameManager.Instance.TargetSyncState(conn);
+        //if (GameManager.Instance != null)GameManager.Instance.TargetSyncState(conn);
     }
 }

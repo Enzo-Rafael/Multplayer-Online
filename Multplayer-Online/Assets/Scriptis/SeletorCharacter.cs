@@ -12,23 +12,24 @@ public class SeletorCharacter : NetworkBehaviour
         Dapper Dino:https://www.youtube.com/@DapperDinoCodingTutorials
         */
     //Variaveis
-    [SerializeField] private GameObject characterSelectDisplay = default;//Menu de seleção de personagem
-    [SerializeField] private Transform characterPreviewParent = default;//tranforme de onde o personagem que esta sendo mostrado vai estar 
+    [SerializeField] private GameObject characterSelectDisplay;//Menu de seleção de personagem
+    [SerializeField] private Transform characterPreviewParent;//tranforme de onde o personagem que esta sendo mostrado vai estar 
     [SerializeField] private Text characterNameText;//onde ficara o nome do persongem
     [SerializeField] private float turnSpeed = 90f;//Velocidade da troca de seleção de personagens
-    [SerializeField] private Character[] characters = default;//Lista ScriptableObjects dos personageens
-    private NetworkIdentity identity = default;
+    [SerializeField] private Character[] characters;//Lista ScriptableObjects dos personageens
+
     private int currentCharacterIndex = 0;//Index dos persongens
     private List<GameObject> characterInstances = new List<GameObject>();//Lista da preview dos personagens
+    private NetworkIdentity identity;
 
     private void Start()
     {
-         Cursor.lockState = CursorLockMode.None;
-         Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
     public override void OnStartClient()
     {
-        GameManager.Instance.DesactiveMenus();
+        //GameManager.Instance?.DesactiveMenus();
         if (characterPreviewParent.childCount == 0)
         {
             foreach (var character in characters)
@@ -41,30 +42,38 @@ public class SeletorCharacter : NetworkBehaviour
                 characterInstances.Add(characterInstance);
             }
         }
-        
-        characterInstances[currentCharacterIndex].SetActive(true);
-        characterNameText.text = characters[currentCharacterIndex].CharacterName;
+        if (characterInstances.Count > 0)
+        {
+            characterInstances[currentCharacterIndex].SetActive(true);
+            characterNameText.text = characters[currentCharacterIndex].CharacterName;
+        }
 
-        characterSelectDisplay.SetActive(true);
+        if (characterSelectDisplay != null) characterSelectDisplay.SetActive(true);
         identity = GetComponent<NetworkIdentity>();
     }
     
 
     private void Update()
     {
-        characterPreviewParent.RotateAround(characterPreviewParent.position, characterPreviewParent.up, turnSpeed * Time.deltaTime);
+       if (characterPreviewParent != null)characterPreviewParent.RotateAround(characterPreviewParent.position,
+        characterPreviewParent.up, turnSpeed * Time.deltaTime);
     }
    
     public void Select()
     {//Confirma a opção excolhida de qual persongem vai ser jogado
-        /*if((currentCharacterIndex == 0 && P1Selected == false) || (currentCharacterIndex == 1 && P2Selected == false)){//Trava de um personagem por jogador
-            CmdSelect(currentCharacterIndex);
-            characterSelectDisplay.SetActive(false); 
-        }else{
-            BtnChangeLeft();
-        }*/
-        GameManager.Instance.CheckCharactersDisponibility();//Faz uma chamada no gama manager para ver se alguns do personagens esta em cena
-        if ((currentCharacterIndex == 0 && GameManager.Instance.player01 == false) || (currentCharacterIndex == 1 && GameManager.Instance.player02 == false))
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("GameManager ainda não foi sincronizado.");
+            return;
+        }
+        if (characterInstances.Count <= currentCharacterIndex || characterInstances[currentCharacterIndex] == null)
+        {
+            Debug.LogError("Preview de personagem não encontrado.");
+            return;
+        }
+        CmdCheckCharactersDisponibility();//Faz uma chamada no gama manager para ver se alguns do personagens esta em cena
+        if ((currentCharacterIndex == 0 && GameManager.Instance.player01 == false) ||
+        (currentCharacterIndex == 1 && GameManager.Instance.player02 == false))
         {
             CmdSelect(currentCharacterIndex, identity.connectionToClient);
         }
@@ -74,25 +83,38 @@ public class SeletorCharacter : NetworkBehaviour
         }
 
     }
+    [Command(requiresAuthority = true)]
+    public void CmdCheckCharactersDisponibility()
+    {
+    GameManager.Instance.CheckCharactersDisponibility();
+    }
     [Command(requiresAuthority = false)]
     public void CmdSelect(int characterIndex, NetworkConnectionToClient sender)
     {//O jogo nescessita dos dois persongens para funcionar 
         if (characterIndex == 0) GameManager.Instance.player01 = true;
         if (characterIndex == 1) GameManager.Instance.player02 = true;
+
         GameManager.Instance.SetIndexCurrent(characterIndex);
-        GameObject characterInstance = Instantiate(characters[characterIndex].GameplayCharacterPrefab,
-         GameManager.Instance.startPosition[characterIndex].position, GameManager.Instance.startPosition[characterIndex].rotation);
+
+        GameObject characterInstance = Instantiate(
+            characters[characterIndex].GameplayCharacterPrefab,
+            GameManager.Instance.startPosition[characterIndex].position,
+            GameManager.Instance.startPosition[characterIndex].rotation
+        );
+
         NetworkServer.Spawn(characterInstance, sender);
+        NetworkServer.SetClientReady(sender);
         //----------------------------------------------
         // Atribui autoridade explicitamente
-        characterInstance.GetComponent<NetworkIdentity>().AssignClientAuthority(sender);// Atribui autoridade ao cliente
+        //characterInstance.GetComponent<NetworkIdentity>().AssignClientAuthority(sender);// Atribui autoridade ao cliente
         TargetOnCharacterSpawned(sender, characterIndex);// Informa ao cliente para ocultar seleção e ativar menus
+        GameManager.Instance.TargetSyncState(sender);
     }
     [TargetRpc]
-    void TargetOnCharacterSpawned(NetworkConnection target, int characterIndex)
+    private void TargetOnCharacterSpawned(NetworkConnection target, int characterIndex)
     {
         // Oculta menu de seleção local
-        characterSelectDisplay.SetActive(false);
+        if (characterSelectDisplay != null)characterSelectDisplay.SetActive(false);
 
         // Ativa UI do jogador
         GameManager.Instance.ActiveMenus();
@@ -103,6 +125,7 @@ public class SeletorCharacter : NetworkBehaviour
     }
 
     public void BtnChangeRight(){//Vai fazer a troca de personagem levando o a auteração de valores para a direita
+        if (characterInstances.Count == 0) return;
         characterInstances[currentCharacterIndex].SetActive(false);
 
         currentCharacterIndex = (currentCharacterIndex + 1) % characterInstances.Count;
@@ -112,6 +135,7 @@ public class SeletorCharacter : NetworkBehaviour
     }
 
     public void BtnChangeLeft(){//Vai fazer a troca de personagem levando o a auteração de valores para a esquerda
+        if (characterInstances.Count == 0) return;
         characterInstances[currentCharacterIndex].SetActive(false);
 
         currentCharacterIndex --;
