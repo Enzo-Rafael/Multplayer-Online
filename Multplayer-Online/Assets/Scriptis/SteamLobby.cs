@@ -103,18 +103,16 @@ public class SteamLobby : MonoBehaviour
             yield return new WaitForSeconds(0.5f); // espera meio segundo
         }
 
-        if (!string.IsNullOrEmpty(hostAddress))
-        {
-            Debug.Log("1");
-            networkManager.networkAddress = hostAddress;
-            networkManager.StartClient();
-            NetworkClient.Ready();//!!!
-            StartCoroutine(WaitForGameManager());
-        }
-        else
+        if (string.IsNullOrEmpty(hostAddress))
         {
             Debug.LogError("Erro ao conectar: HostAddress vazio.");
+            yield break;   
         }
+        networkManager.networkAddress = hostAddress;
+        networkManager.StartClient();
+        yield return new WaitUntil(() => NetworkClient.isConnected);  
+        Debug.Log("Cliente conectado com sucesso via Steam.");
+        StartCoroutine(WaitForGameManager());
     }
     private IEnumerator WaitForGameManager()
     {

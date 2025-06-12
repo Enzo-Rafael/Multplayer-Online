@@ -61,7 +61,7 @@ public class PlayerMuve : NetworkBehaviour
 
     void Update()
     {
-        if (/*_canMove != true ||*/  !authority || !NetworkClient.ready) return;//
+        if (/*_canMove != true ||*/  !authority ||!NetworkClient.isConnected  ||!NetworkClient.ready) return;//
 
         HandleCursor();
         RotateView();

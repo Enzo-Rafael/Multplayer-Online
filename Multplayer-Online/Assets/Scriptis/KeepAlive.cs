@@ -10,20 +10,30 @@ using Mirror;
 public class KeepAlive : NetworkBehaviour
 {
    float timer;
+   private bool canPing = false;
+
+    public override void OnStartClient()
+    {
+    base.OnStartClient();
+    canPing = true;
+    }
 
     void Update()
     {
-        if (!authority || !NetworkClient.isConnected || !NetworkClient.ready)
+        if (!canPing || !authority || !NetworkClient.isConnected || !NetworkClient.ready)
         {
-            Debug.LogWarning("Tentando enviar PingMessage sem estar conectado.");
+            //Debug.LogWarning("Tentando enviar PingMessage sem estar conectado.");
             return;
         }
-
-        timer += Time.deltaTime;
-        if (timer > 5f)
+        if (NetworkClient.isConnected)
         {
-            NetworkClient.Send(new PingMessage());
-            timer = 0;
+            timer += Time.deltaTime;
+            if (timer > 5f)
+            {
+
+                NetworkClient.Send(new PingMessage());
+                timer = 0;
+            }
         }
     }
 }

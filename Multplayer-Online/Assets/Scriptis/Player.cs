@@ -21,7 +21,7 @@ public class Player : NetworkBehaviour
     [ClientCallback]
     private void Update()
     {
-        if (!isOwned || !NetworkClient.ready) { return; }
+        if (!isOwned || !NetworkClient.isConnected || !NetworkClient.ready) { return; }
         if (Mouse.current.leftButton.isPressed && GameManager.Instance.timerActive == true)//Disparo
         {
             if (canShoot == true)
@@ -34,12 +34,12 @@ public class Player : NetworkBehaviour
         }
 
     }
-    [Client]
+    /*[Client]
     public void Awake()
     {
         if (!authority) { return; }
         //GameManager.Instance.ActiveMneu();
-    }
+    }*/
     public override void OnStartAuthority()
     {
         myCam.SetActive(true);
