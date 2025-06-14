@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using Mirror;
 using Steamworks;
-[CreateAssetMenu(fileName = "SeletorCharacter", menuName = "Scriptable Objects/SeletorCharacter")]
+
 public class SeletorCharacter : NetworkBehaviour
 {
     [Header("UI")]
@@ -79,9 +79,8 @@ public class SeletorCharacter : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
-    public void CmdSelect(int characterIndex)
+    public void CmdSelect(int characterIndex, NetworkConnectionToClient sender = null)
     {
-        var sender = connectionToClient;
 
         if (characterIndex == 0) GameManager.Instance.player01 = true;
         if (characterIndex == 1) GameManager.Instance.player02 = true;
@@ -96,10 +95,25 @@ public class SeletorCharacter : NetworkBehaviour
 
         NetworkServer.Spawn(characterInstance, sender);
         //NetworkServer.SetClientReady(sender);
-
+        GameManager.Instance.UpdatePlayerSlots();
         // Manda para o cliente ocultar a seleção e ativar a UI
         GameManager.Instance.TargetSyncState(sender);
+        TargetOnCharacterSelected(sender);
     }
+    [TargetRpc]
+void TargetOnCharacterSelected(NetworkConnection target)
+{
+    Debug.Log("Personagem selecionado com sucesso no cliente.");
+
+    if (characterSelectDisplay != null)
+        characterSelectDisplay.SetActive(false);
+
+    GameManager.Instance.ActiveMenus();
+    GameManager.Instance.ShowPoints();
+
+    if (isServer)
+        GameManager.Instance.ShowStart();
+}
 
     public void BtnChangeRight()
     {

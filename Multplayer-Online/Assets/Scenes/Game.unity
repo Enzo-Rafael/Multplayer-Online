@@ -5340,8 +5340,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2062353714}
   - component: {fileID: 2062353713}
-  - component: {fileID: 2062353715}
   - component: {fileID: 2062353716}
+  - component: {fileID: 2062353715}
   m_Layer: 0
   m_Name: CharacterSelector
   m_TagString: Untagged

@@ -165,6 +165,14 @@ public class GameManager : NetworkBehaviour
             ToggleMenu(UIMenuType.StartButton, true);
         }
     }
+    
+    public void UpdatePlayerSlots()
+    {
+        if (!isServer) return;
+
+        player01 = GameObject.FindWithTag("Player1") != null;
+        player02 = GameObject.FindWithTag("Player2") != null;
+    }
 
     //------------------------------------------------- SERVER AREA -------------------------------------------------
     [Server]
