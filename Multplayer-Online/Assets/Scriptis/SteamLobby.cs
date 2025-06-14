@@ -18,7 +18,7 @@ public class SteamLobby : MonoBehaviour
     public ulong CurrentLobbyID;
     private const string HostAddressKey = "HostAddress";
     private MyNetworkManager networkManager;
-    public static CSteamID iD { get; private set; }
+    public static CSteamID lobbyID { get; private set; }
 
     private void Start()
     {
@@ -47,7 +47,7 @@ public class SteamLobby : MonoBehaviour
             return;
         }
 
-        iD = new CSteamID(callback.m_ulSteamIDLobby);
+        lobbyID = new CSteamID(callback.m_ulSteamIDLobby);
         StartCoroutine(WaitForServerStartAndSetupLobby());
     } 
 
@@ -56,12 +56,7 @@ public class SteamLobby : MonoBehaviour
         networkManager.StartHost();
 
         // Espera até o servidor estar ativo
-        float timeout = 5f;
-        while (!NetworkServer.active && timeout > 0f)
-        {
-            timeout -= Time.deltaTime;
-            yield return null;
-        }
+        yield return new WaitUntil(() => NetworkServer.active);
 
         if (!NetworkServer.active)
         {
@@ -69,8 +64,8 @@ public class SteamLobby : MonoBehaviour
             yield break;
         }
 
-        SteamMatchmaking.SetLobbyData(iD, HostAddressKey, SteamUser.GetSteamID().ToString());
-        SteamMatchmaking.SetLobbyData(iD, "name", SteamFriends.GetPersonaName() + "'s Lobby");
+        SteamMatchmaking.SetLobbyData(lobbyID, HostAddressKey, SteamUser.GetSteamID().ToString());
+        SteamMatchmaking.SetLobbyData(lobbyID, "name", SteamFriends.GetPersonaName() + "'s Lobby");
 
         Debug.Log("Servidor iniciado e lobby configurado.");
     }
@@ -112,12 +107,25 @@ public class SteamLobby : MonoBehaviour
         networkManager.StartClient();
         yield return new WaitUntil(() => NetworkClient.isConnected);  
         Debug.Log("Cliente conectado com sucesso via Steam.");
-        StartCoroutine(WaitForGameManager());
+        //StartCoroutine(WaitForGameManager());
     }
     private IEnumerator WaitForGameManager()
     {
-       yield return new WaitUntil(() => GameManager.Instance != null);
+        float timeout = 5f;
+        while (GameManager.Instance == null && timeout > 0f)
+        {
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
 
-       GameManager.Instance.InitializeMenus(); // ou TargetSyncState se for necessário
+        if (GameManager.Instance != null)
+        {
+            Debug.Log("GameManager encontrado no cliente.");
+            GameManager.Instance.InitializeMenus();
+        }
+        else
+        {
+            Debug.LogError("GameManager não encontrado no cliente.");
+        }
     }
 }

@@ -49,7 +49,6 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   startPosition: []
-  players: []
   charIndex: 0
   player01: 0
   player02: 0

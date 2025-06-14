@@ -44,13 +44,13 @@ public class MyNetworkManager : NetworkManager
         Debug.Log("Ola, conectei ");
         //GameManager.Instance.startPos = NetworkManager.startPositions;
 
-        //GameManager.Instance?.CheckCharactersDisponibility();
+        GameManager.Instance?.CheckCharactersDisponibility();
     }
     public override void OnClientConnect()//Acontece quando o Cliente conecta
     {
-        Debug.Log("2");
         base.OnClientConnect();
-        if (!NetworkClient.ready)NetworkClient.Ready();//!!! por que é chamado 2 veses 
+        if (!NetworkClient.isConnected) return;
+        if (!NetworkClient.ready) NetworkClient.Ready();//!!! por que é chamado 2 veses 
         StartCoroutine(WaitForGameManager());
     }
 
@@ -69,7 +69,7 @@ public class MyNetworkManager : NetworkManager
         }
         else
         {
-            Debug.LogWarning("GameManager.Instance não foi encontrado no cliente.");
+            Debug.LogWarning("GameManager não foi encontrado no cliente.");
         }
     }
     public override void OnClientDisconnect()//Acontece quando o Cliente desconecta
@@ -79,14 +79,18 @@ public class MyNetworkManager : NetworkManager
         if (GameManager.Instance != null && NetworkClient.active)
         {
             GameManager.Instance.DesactiveMenus();
-            //GameManager.Instance.CheckCharactersDisponibility();
+            GameManager.Instance.CheckCharactersDisponibility();
         }
         base.OnClientDisconnect();
     }
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)//Chamada quando o server adiciona um player
     {
         base.OnServerAddPlayer(conn);
-        GameManager.Instance?.UpdatePlayerSlots();
-        //if (GameManager.Instance != null)GameManager.Instance.TargetSyncState(conn);
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.TargetSyncState(conn);
+            GameManager.Instance?.CheckCharactersDisponibility();
+        }
     }
 }

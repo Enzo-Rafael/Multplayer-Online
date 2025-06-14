@@ -27,11 +27,14 @@ public class PlayerMuve : NetworkBehaviour
     private Vector3 velocity;
     private float xRotation = 0f;
     private bool jumpQueued = false;
-    //private bool _canMove = false;
+    
+    void Awake()
+    {
+        controller = GetComponent<CharacterController>();
+    }
 
     public override void OnStartAuthority()
     {
-        controller = GetComponent<CharacterController>();
         inputActions = new PlayerInputActions();
 
         inputActions.Player.Move.performed += ctx => inputMove = ctx.ReadValue<Vector2>();
@@ -44,7 +47,7 @@ public class PlayerMuve : NetworkBehaviour
 
         inputActions.Player.Enable();
         LockCursor();
-        //_canMove = true;
+       
         if (cameraHolder != null)
             cameraHolder.gameObject.SetActive(true);
     }
@@ -61,7 +64,7 @@ public class PlayerMuve : NetworkBehaviour
 
     void Update()
     {
-        if (/*_canMove != true ||*/  !authority ||!NetworkClient.isConnected  ||!NetworkClient.ready) return;//
+        if ( !authority ||!NetworkClient.isConnected) return;
 
         HandleCursor();
         RotateView();
@@ -79,7 +82,7 @@ public class PlayerMuve : NetworkBehaviour
         controller.Move((moveDir * moveSpeed + velocity) * Time.deltaTime);
     }
 
-    void RotateView()
+    void RotateView()//controle de camera
     {
         currentLook = Vector2.SmoothDamp(currentLook, inputLook, ref currentLookVelocity, smoothTime);
 
@@ -95,7 +98,7 @@ public class PlayerMuve : NetworkBehaviour
         transform.Rotate(Vector3.up * mouseX);
     }
 
-    void HandleCursor()
+    void HandleCursor()//Controle sobre a visibilidade do cursor
     {
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
             UnlockCursor();
@@ -104,13 +107,13 @@ public class PlayerMuve : NetworkBehaviour
             LockCursor();
     }
 
-    void LockCursor()
+    void LockCursor()//Trava o Cursor
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
-    void UnlockCursor()
+    void UnlockCursor()//Destrava o cursor
     {
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

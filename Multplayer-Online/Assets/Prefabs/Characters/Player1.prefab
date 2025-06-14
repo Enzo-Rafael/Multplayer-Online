@@ -790,7 +790,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncDirection: 0
   syncMode: 0
-  syncInterval: 0
+  syncInterval: 0.05
   profileImage: {fileID: 1800374295726577105}
   displayName: {fileID: 490695582383976496}
 --- !u!114 &8767864739753932816

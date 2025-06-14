@@ -54,27 +54,29 @@ public class PlayerName : NetworkBehaviour
     private void OnAvatarImageLoaded(AvatarImageLoaded_t callback)
     {
         if (callback.m_steamID.m_SteamID != steamID) { return; }
-        profileImage.texture = GetSteamImageAsTexture(callback.m_iImage);
+        Texture2D avatarTexture = GetSteamImageAsTexture(callback.m_iImage);
+        if (avatarTexture != null)
+        {
+            profileImage.texture = avatarTexture;
+        }
     }
 
     private Texture2D GetSteamImageAsTexture(int iImage)
     {
         Texture2D texture = null;
 
-        bool isValid = SteamUtils.GetImageSize(iImage, out uint width, out uint height);
-        if (isValid)
-        {
-            byte[] image = new byte[width * height * 4];
+        bool success = SteamUtils.GetImageSize(iImage, out uint width, out uint height);
+        if (!success) return null;
 
-            isValid = SteamUtils.GetImageRGBA(iImage, image, (int)(width * height * 4));
+        byte[] imageBytes = new byte[width * height * 4];
 
-            if (isValid)
-            {
-                texture = new Texture2D((int)width, (int)height, TextureFormat.RGBA32, false, true);
-                texture.LoadRawTextureData(image);
-                texture.Apply();
-            }
-        }
+        success = SteamUtils.GetImageRGBA(iImage, imageBytes, (int)(width * height * 4));
+        if (!success) return null;
+
+        texture = new Texture2D((int)width, (int)height, TextureFormat.RGBA32, false, true);
+        texture.LoadRawTextureData(imageBytes);
+        texture.Apply();
+
         return texture;
     }
 }
