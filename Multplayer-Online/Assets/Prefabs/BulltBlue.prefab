@@ -106,7 +106,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 128
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -127,7 +127,9 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  damage: 2
+  speed: 20
+  lifetime: 3
+  playerIndex: 1
 --- !u!54 &3824364178435724475
 Rigidbody:
   m_ObjectHideFlags: 0
