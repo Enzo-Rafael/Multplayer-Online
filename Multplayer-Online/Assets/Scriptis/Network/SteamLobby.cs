@@ -6,13 +6,14 @@ using System.Collections;
 
 public class SteamLobby : MonoBehaviour
 {
+    //references
     [SerializeField] private GameObject buttons;
     [SerializeField] private Text uiTxt;
-
+    //Calbacks
     protected Callback<LobbyCreated_t> lobbyCreated;
     protected Callback<GameLobbyJoinRequested_t> gameLobbyJoinRequested;
     protected Callback<LobbyEnter_t> lobbyEntered;
-
+    //Configs
     public ulong CurrentLobbyID;
     private const string HostAddressKey = "HostAddress";
     private MyNetworkManager networkManager;
@@ -51,12 +52,17 @@ public class SteamLobby : MonoBehaviour
     {
         networkManager.StartHost();
         yield return new WaitUntil(() => NetworkServer.active);
+        if (!NetworkServer.active)
+        {
+            Debug.Log("StartHost falhou");
+            yield break;
+        }
 
         SteamMatchmaking.SetLobbyData(iD, HostAddressKey, SteamUser.GetSteamID().ToString());
         SteamMatchmaking.SetLobbyData(iD, "name", SteamFriends.GetPersonaName() + "'s Lobby");
     }
 
-    private void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t callback)
+    private void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t callback)//Serve para solicitar entrada no lobby
     {
         SteamMatchmaking.JoinLobby(callback.m_steamIDLobby);
     }
@@ -66,13 +72,14 @@ public class SteamLobby : MonoBehaviour
         buttons.SetActive(false);
         CurrentLobbyID = callback.m_ulSteamIDLobby;
 
+        uiTxt.gameObject.SetActive(true);
         uiTxt.text = SteamMatchmaking.GetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), "name");
 
         if (NetworkServer.active) return;
         StartCoroutine(ConnectClient());
     }
 
-    IEnumerator ConnectClient()
+    private IEnumerator ConnectClient()
     {
         string hostAddress = "";
 
@@ -91,5 +98,6 @@ public class SteamLobby : MonoBehaviour
 
         networkManager.networkAddress = hostAddress;
         networkManager.StartClient();
+        yield return new WaitUntil(() => NetworkClient.isConnected);
     }
 }

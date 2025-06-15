@@ -40,7 +40,7 @@ public class KeepAlive : NetworkBehaviour
 
     void Update()
     {
-        if (!isOwned || !NetworkClient.isConnected) return;
+        if (!isLocalPlayer || !NetworkClient.isConnected || !NetworkClient.ready) return;
 
         timer += Time.deltaTime;
         if (timer >= 5f) // A cada 5 segundos
