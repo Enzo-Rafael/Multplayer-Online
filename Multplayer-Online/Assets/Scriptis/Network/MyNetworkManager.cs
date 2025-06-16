@@ -4,7 +4,7 @@ using UnityEngine;
 public class MyNetworkManager : NetworkManager
 {
     [Header("Custom Prefabs")]
-    public GameObject gameManagerPrefab;
+    //public GameObject gameManagerPrefab;
     private GameManager gameManagerInstance;
 
     public override void Awake()
@@ -22,13 +22,13 @@ public class MyNetworkManager : NetworkManager
     {
         base.OnStartServer();
 
-        if (gameManagerInstance == null)
+        /*if (gameManagerInstance == null)
         {
             GameObject gm = Instantiate(gameManagerPrefab);
             NetworkServer.Spawn(gm);
             gameManagerInstance = gm.GetComponent<GameManager>();
             GameManager.Instance = gameManagerInstance;
-        }
+        }*/
     }
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {

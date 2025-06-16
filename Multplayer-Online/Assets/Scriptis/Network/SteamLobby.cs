@@ -48,7 +48,7 @@ public class SteamLobby : MonoBehaviour
         StartCoroutine(SetupLobby());
     }
 
-    IEnumerator SetupLobby()
+    private IEnumerator SetupLobby()
     {
         networkManager.StartHost();
         yield return new WaitUntil(() => NetworkServer.active);
@@ -99,5 +99,25 @@ public class SteamLobby : MonoBehaviour
         networkManager.networkAddress = hostAddress;
         networkManager.StartClient();
         yield return new WaitUntil(() => NetworkClient.isConnected);
+        StartCoroutine(WaitForGameManager());
+    }
+    private IEnumerator WaitForGameManager()
+    {
+        float timeout = 5f;
+        while (GameManager.Instance == null && timeout > 0f)
+        {
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
+
+        if (GameManager.Instance != null)
+        {
+            Debug.Log("GameManager encontrado no cliente.");
+            GameManager.Instance.InitializeMenus();
+        }
+        else
+        {
+            Debug.LogError("GameManager não encontrado no cliente.");
+        }
     }
 }
