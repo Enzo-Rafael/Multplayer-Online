@@ -14,10 +14,12 @@ public class SteamLobby : MonoBehaviour
     protected Callback<LobbyCreated_t> lobbyCreated;
     protected Callback<GameLobbyJoinRequested_t> gameLobbyJoinRequested;
     protected Callback<LobbyEnter_t> lobbyEntered;
+    protected Callback<LobbyMatchList_t> lobbyMatchList;
+
     //Configs
     public ulong CurrentLobbyID;
     private const string HostAddressKey = "HostAddress";
-    [SerializeField]private MyNetworkManager networkManager;
+    [SerializeField] private MyNetworkManager networkManager;
     public static CSteamID ID { get; private set; }
 
     private void Awake()
@@ -27,12 +29,17 @@ public class SteamLobby : MonoBehaviour
 
     private void Start()
     {
-       
-        if (!SteamManager.Initialized) return;
+
+        if (!SteamManager.Initialized)
+        {
+            Debug.LogError("Steam não está inicializado!");
+            return;
+        }
 
         lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
         gameLobbyJoinRequested = Callback<GameLobbyJoinRequested_t>.Create(OnGameLobbyJoinRequested);
         lobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
+        lobbyMatchList = Callback<LobbyMatchList_t>.Create(OnLobbyMatchList);
     }
 
     public void HostLobby()
@@ -81,6 +88,8 @@ public class SteamLobby : MonoBehaviour
         uiTxt.gameObject.SetActive(true);
         uiTxt.text = SteamMatchmaking.GetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), "name");
 
+        
+
         if (NetworkServer.active) return;
         StartCoroutine(ConnectClient());
     }
@@ -92,7 +101,7 @@ public class SteamLobby : MonoBehaviour
             Debug.LogError("Steam não está inicializado.");
             yield break;
         }
-        yield return new WaitForSeconds(1f); 
+        //yield return new WaitForSeconds(0.5f);
 
         string hostAddress = "";
 
@@ -111,6 +120,7 @@ public class SteamLobby : MonoBehaviour
 
         networkManager.networkAddress = hostAddress;
         yield return new WaitUntil(() => NetworkServer.active);
+        buttons.SetActive(false);
         networkManager.StartClient();
         yield return new WaitUntil(() => NetworkClient.isConnected);
         if (GameManager.Instance == null)
@@ -119,6 +129,7 @@ public class SteamLobby : MonoBehaviour
             .Select(go => go.GetComponent<GameManager>())
             .FirstOrDefault(gm => gm != null);
         }
+        buttons.SetActive(false);
         StartCoroutine(WaitForGameManager());
     }
     private IEnumerator WaitForGameManager()
@@ -158,4 +169,29 @@ public class SteamLobby : MonoBehaviour
             }
         }
     }
+    public void FindAndJoinLobby()//Botão de entrar
+    {
+        buttons.SetActive(false);
+        Debug.Log("Procurando lobby...");
+
+        // Pode remover filtros se quiser ver todos os lobbies
+        SteamMatchmaking.AddRequestLobbyListResultCountFilter(5);
+        SteamMatchmaking.RequestLobbyList();
+    }
+
+    private void OnLobbyMatchList(LobbyMatchList_t result)
+    {
+        if (result.m_nLobbiesMatching > 0)
+        {
+            CSteamID lobbyID = SteamMatchmaking.GetLobbyByIndex(0);
+            Debug.Log($"Lobby encontrado: {lobbyID}, entrando...");
+            SteamMatchmaking.JoinLobby(lobbyID);
+        }
+        else
+        {
+            Debug.LogWarning("Nenhum lobby encontrado.");
+            buttons.SetActive(true);
+        }
+    }
+    
 }

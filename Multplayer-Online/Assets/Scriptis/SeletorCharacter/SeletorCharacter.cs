@@ -19,18 +19,60 @@ public class SeletorCharacter : NetworkBehaviour
     private int currentCharacterIndex = 0;
     private List<GameObject> characterInstances = new List<GameObject>();
 
-    private NetworkIdentity identity;
-
+    //private NetworkIdentity identity;
+    /*private void Awake()
+    {
+        DontDestroyOnLoad(gameObject);
+    }*/
     private void Start()
     {
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+       
+        //SetupCharacterPreview();
+
+        //characterSelectDisplay.SetActive(true);
+        /*if (!authority)
+        {
+            characterSelectDisplay.SetActive(false);
+            return;
+        }*/
+        //SetupCharacterPreview();
+        characterSelectDisplay.SetActive(true);
     }
 
-    public override void OnStartClient()
+    private void Update()
     {
-        identity = GetComponent<NetworkIdentity>();
+        if (!authority) return;
+        characterPreviewParent.RotateAround(characterPreviewParent.position, characterPreviewParent.up, turnSpeed * Time.deltaTime);
+    }
 
+    public override void OnStartAuthority()
+    {
+        Debug.Log("OnStartAuthority().");
+        base.OnStartAuthority();
+
+        //identity = GetComponent<NetworkIdentity>();
+        
+        if (GameManager.Instance.player01 && GameManager.Instance.player02)
+        {
+            Debug.Log("Todos os personagens já foram selecionados.");
+            // Opcionalmente, pode desabilitar o seletor ou exibir uma mensagem
+            characterSelectDisplay.SetActive(false);
+            return;
+        }
+
+        characterSelectDisplay.SetActive(true);
+
+        SetupCharacterPreview();
+        characterSelectDisplay.SetActive(true);
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    private void SetupCharacterPreview()
+    {
         if (characterPreviewParent.childCount == 0)
         {
             foreach (var character in characters)
@@ -43,14 +85,8 @@ public class SeletorCharacter : NetworkBehaviour
 
         characterInstances[currentCharacterIndex].SetActive(true);
         characterNameText.text = characters[currentCharacterIndex].CharacterName;
-
-        if (characterSelectDisplay != null) characterSelectDisplay.SetActive(true);
     }
 
-    private void Update()
-    {
-        characterPreviewParent.RotateAround(characterPreviewParent.position, characterPreviewParent.up, turnSpeed * Time.deltaTime);
-    }
 
     public void Select()//Serve para selecionar o personagem
     {
@@ -62,11 +98,14 @@ public class SeletorCharacter : NetworkBehaviour
             return;
         }
 
-        CmdCheckCharactersDisponibility();
+        //CmdCheckCharactersDisponibility();
 
-        if ((currentCharacterIndex == 0 && GameManager.Instance.player01 == false) ||
-            (currentCharacterIndex == 1 && GameManager.Instance.player02 == false))
+        if ((currentCharacterIndex == 0 && !gm.player01) ||
+            (currentCharacterIndex == 1 && !gm.player02))
         {
+            //NetworkClient.connection.Send(new CharacterSelectMessage { characterIndex = currentCharacterIndex });
+            //UIManager.Instance?.startButton.SetActive(true);
+            characterSelectDisplay.SetActive(false);
             CmdSelect(currentCharacterIndex);
         }
         else
@@ -89,6 +128,7 @@ public class SeletorCharacter : NetworkBehaviour
         characterInstances[currentCharacterIndex].SetActive(true);
         characterNameText.text = characters[currentCharacterIndex].CharacterName;
     }
+
     [Command(requiresAuthority = false)]
     public void CmdCheckCharactersDisponibility()//Checa a diponibilidade dos personagens
     {
@@ -153,4 +193,8 @@ public class SeletorCharacter : NetworkBehaviour
         return false;
     }
 
+}
+public struct CharacterSelectMessage : NetworkMessage
+{
+    public int characterIndex;
 }

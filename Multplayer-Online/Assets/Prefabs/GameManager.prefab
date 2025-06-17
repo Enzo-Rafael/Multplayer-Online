@@ -52,6 +52,9 @@ MonoBehaviour:
   players: []
   steamIdGM:
     m_SteamID: 0
+  characters:
+  - {fileID: 11400000, guid: f970289d339afe14fabf47ee544a2ac1, type: 2}
+  - {fileID: 11400000, guid: 60e772e7f6d156f44850d28dc82f6b35, type: 2}
   player01: 0
   player02: 0
   player1Pontos: 0

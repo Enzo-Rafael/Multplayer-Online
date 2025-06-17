@@ -31,6 +31,7 @@ public class MyNetworkManager : NetworkManager
             gameManagerInstance = gm.GetComponent<GameManager>();
             GameManager.Instance = gameManagerInstance;
         }
+        NetworkServer.RegisterHandler<CharacterSelectMessage>(OnCharacterSelected);
     }
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
@@ -71,7 +72,7 @@ public class MyNetworkManager : NetworkManager
            
         yield return new WaitUntil(() => GameManager.Instance != null);
         UIManager.Instance.DesactiveMenus();
-        if (GameManager.Instance != null) GameManager.Instance.TargetSyncState(NetworkClient.connection);
+        //if (GameManager.Instance != null) GameManager.Instance.TargetSyncState(NetworkClient.connection);
     }
 
     public override void OnClientDisconnect()
@@ -82,5 +83,30 @@ public class MyNetworkManager : NetworkManager
             GameManager.Instance.UpdatePlayerSlots();
         }
         base.OnClientDisconnect();
+    }
+
+    private void OnCharacterSelected(NetworkConnectionToClient conn, CharacterSelectMessage msg)
+    {
+        int index = msg.characterIndex;
+
+        if (index == 0 && GameManager.Instance.player01) return;
+        if (index == 1 && GameManager.Instance.player02) return;
+
+        if (index == 0) GameManager.Instance.player01 = true;
+        if (index == 1) GameManager.Instance.player02 = true;
+
+        GameManager.Instance.SetIndexCurrent(index);
+
+        GameObject characterPrefab = GameManager.Instance.characters[index].GameplayCharacterPrefab;
+        Transform spawn = GameManager.Instance.startPosition[index];
+
+        GameObject playerObj = Instantiate(characterPrefab, spawn.position, spawn.rotation);
+        NetworkServer.Spawn(playerObj, conn);
+
+        GameManager.Instance.UpdatePlayerSlots();
+        GameManager.Instance.TargetSyncState(conn);
+
+        UIManager.Instance.ActiveMenus();
+        
     }
 }

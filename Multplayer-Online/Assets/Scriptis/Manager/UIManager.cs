@@ -78,6 +78,7 @@ public class UIManager : MonoBehaviour
         // ToggleMenu(UIMenuType.HUD, true);
         gameplayPanel.SetActive(true);
         hudPanel.SetActive(true);
+        
     }
 
     public void DesactiveMenus()//Desativa parte da UI

@@ -14,6 +14,7 @@ public class GameManager : NetworkBehaviour
     public Transform[] startPosition;
     public Transform[] players;
     public CSteamID steamIdGM;
+    public Character[] characters;
 
     [Header("Settings")]
     [SyncVar] public bool player01 = false;
@@ -65,6 +66,21 @@ public class GameManager : NetworkBehaviour
         }
     }
     // ----------------- Client Area ---------------------
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        //UIManager.Instance?.InitializeMenus();
+
+        if (timerActive)
+        {
+            UIManager.Instance.ActiveMenus();
+        }
+        else
+        {
+            UIManager.Instance.DesactiveMenus();
+        }
+    }
     [Client]
     void RpcUpdateTimer(float timeLeft)//atualiza a ui do cronometro
     {
@@ -148,12 +164,17 @@ public class GameManager : NetworkBehaviour
     // ----------------- Sync ----------------------
 
     [TargetRpc]
-    public void TargetSyncState(NetworkConnection target)//Synca a UI
+    public void TargetSyncState(NetworkConnectionToClient target)//Synca a UI
     {
         UIManager.Instance?.UpdateScore(player1Pontos, player2Pontos);
+
         if (timerActive)
         {
             UIManager.Instance?.ActiveMenus();
+        }
+        else
+        {
+            UIManager.Instance?.DesactiveMenus();
         }
     }
 
