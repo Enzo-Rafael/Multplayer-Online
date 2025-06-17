@@ -3,12 +3,21 @@ using Unity.VisualScripting;
 using Mirror;
 public class MyNetworkManager : NetworkManager
 {
+    public override void Awake()
+    {
+        base.Awake();
+        NetworkClient.RegisterHandler<ChatMessage>(OnMessageReceivedClient);
+    }
+    void OnMessageReceivedClient( ChatMessage msg)
+    {
+        string finalText = $"<b>{msg.sender}</b>: {msg.content}\n";
+    }
     /*public override void OnStartHost()//Acontece quando o Host Inicia
     {
         base.OnStartHost();
         GameManager.Instance.SetSpawnPos(NetworkManager.startPositions.ToArray());
     }*/
-    
+
     public override void OnServerConnect(NetworkConnectionToClient conn)//Acontece quando o Server Inicia
     {
         base.OnServerConnect(conn);
