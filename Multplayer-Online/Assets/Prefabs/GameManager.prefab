@@ -49,14 +49,17 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   startPosition: []
-  charIndex: 0
+  players: []
+  steamIdGM:
+    m_SteamID: 0
   player01: 0
   player02: 0
   player1Pontos: 0
   player2Pontos: 0
   timerActive: 0
   matchTime: 0
-  startTime: 5
+  startTime: 0.5
+  charIndex: 0
 --- !u!114 &7704949966967520605
 MonoBehaviour:
   m_ObjectHideFlags: 0

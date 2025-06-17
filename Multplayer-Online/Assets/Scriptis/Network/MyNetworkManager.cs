@@ -1,10 +1,12 @@
+using System.Collections;
+using System.Linq;
 using Mirror;
 using UnityEngine;
 
 public class MyNetworkManager : NetworkManager
 {
     [Header("Custom Prefabs")]
-    //public GameObject gameManagerPrefab;
+    public GameObject gameManagerPrefab;
     private GameManager gameManagerInstance;
 
     public override void Awake()
@@ -22,13 +24,13 @@ public class MyNetworkManager : NetworkManager
     {
         base.OnStartServer();
 
-        /*if (gameManagerInstance == null)
+        if (gameManagerInstance == null)
         {
             GameObject gm = Instantiate(gameManagerPrefab);
             NetworkServer.Spawn(gm);
             gameManagerInstance = gm.GetComponent<GameManager>();
             GameManager.Instance = gameManagerInstance;
-        }*/
+        }
     }
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
@@ -40,33 +42,43 @@ public class MyNetworkManager : NetworkManager
     {
         base.OnClientConnect();
         if (!NetworkClient.ready) NetworkClient.Ready();
+        if (GameManager.Instance == null)
+        {
+            GameManager.Instance = NetworkClient.spawned.Values
+            .Select(go => go.GetComponent<GameManager>())
+            .FirstOrDefault(gm => gm != null);
+
+        }
         StartCoroutine(WaitForGameManager());
+        
     }
 
-    System.Collections.IEnumerator WaitForGameManager()
+    private IEnumerator WaitForGameManager()
     {
         float timeout = 5f;
-        while (GameManager.Instance == null && timeout > 0f)
+        while ((GameManager.Instance == null || UIManager.Instance == null)&& timeout > 0f)
         {
             timeout -= Time.deltaTime;
             yield return null;
         }
-
-        if (GameManager.Instance != null)
+        if (UIManager.Instance != null)
         {
-            GameManager.Instance.StartCoroutine(GameManager.Instance.SetCanvasSafe());
-        }
-        else
+            UIManager.Instance.DesactiveMenus();
+        }else
         {
-            Debug.LogWarning("GameManager.Instance não foi encontrado no cliente.");
+            Debug.LogError("UIManager.Instance está nulo!");
         }
+           
+        yield return new WaitUntil(() => GameManager.Instance != null);
+        UIManager.Instance.DesactiveMenus();
+        if (GameManager.Instance != null) GameManager.Instance.TargetSyncState(NetworkClient.connection);
     }
 
     public override void OnClientDisconnect()
     {
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.DesactiveMenus();
+            if (UIManager.Instance != null)UIManager.Instance.DesactiveMenus();
             GameManager.Instance.UpdatePlayerSlots();
         }
         base.OnClientDisconnect();

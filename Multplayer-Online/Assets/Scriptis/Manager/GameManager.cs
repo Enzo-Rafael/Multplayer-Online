@@ -1,6 +1,5 @@
 using Mirror;
 using UnityEngine;
-using UnityEngine.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,22 +9,11 @@ public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance;
 
-    public enum UIMenuType
-    {
-        TimerText,
-        ScoreP1,
-        ScoreP2,
-        GameplayPanel,
-        HUD,
-        WinPanel,
-        StartButton
-    }
 
     [Header("References")]
     public Transform[] startPosition;
     public Transform[] players;
     public CSteamID steamIdGM;
-    private Dictionary<UIMenuType, GameObject> menuDict = new();
 
     [Header("Settings")]
     [SyncVar] public bool player01 = false;
@@ -56,150 +44,93 @@ public class GameManager : NetworkBehaviour
         player1Pontos = 0;
         player2Pontos = 0;
         startPosition = NetworkManager.startPositions.ToArray();
+        UIManager.Instance?.UpdateTimerText(matchTime);
+        UIManager.Instance?.UpdateScore(player1Pontos,player2Pontos);
     }
 
     [ServerCallback]
     private void Update()
     {
-        if (!isServer || !timerActive) return;
-
+        if (!isServer) return;
+        if(!timerActive) return;
+        
         matchTime -= Time.deltaTime;
         RpcUpdateTimer(matchTime);
 
         if (matchTime <= 0)
         {
             timerActive = false;
-            RpcMatchEnded();
+            RpcMatchEnded(player1Pontos, player2Pontos);
+            Debug.Log($"Timer ativo: {timerActive}, MatchTime: {matchTime}");
         }
     }
-
-    [ClientRpc]
-    void RpcUpdateTimer(float timeLeft)
+    // ----------------- Client Area ---------------------
+    [Client]
+    void RpcUpdateTimer(float timeLeft)//atualiza a ui do cronometro
     {
-        TimeSpan time = TimeSpan.FromSeconds(timeLeft);
-        if (menuDict.TryGetValue(UIMenuType.TimerText, out var timerText))
-        {
-            timerText.GetComponent<Text>().text = $"{time.Minutes:D2}:{time.Seconds:D2}";
-        }
+        UIManager.Instance?.UpdateTimerText(timeLeft);
     }
 
-    [ClientRpc]
-    void RpcMatchEnded()
+    [Client]
+    void RpcMatchEnded(int p1, int p2)//condição de vitoria e derrota
     {
         string result = "EMPATE";
         if (player1Pontos > player2Pontos) result = "Parabéns: P1";
         else if (player2Pontos > player1Pontos) result = "Parabéns: P2";
 
-        ToggleMenu(UIMenuType.WinPanel, true);
-
-        if (menuDict.TryGetValue(UIMenuType.WinPanel, out var winPanel))
-        {
-            winPanel.GetComponentInChildren<Text>().text = result;
-        }
-
-        ToggleMenu(UIMenuType.StartButton, true);
+        UIManager.Instance?.ShowMatchResult(result);
+        UIManager.Instance?.ShowStart();
     }
-
-    // ----------------- UI ----------------------
-
     [Client]
-    public IEnumerator SetCanvasSafe()
+    void ResetCanvas()
     {
-        yield return new WaitForSeconds(0.1f);
-        InitializeMenus();
+        UIManager.Instance?.UpdateScore(player1Pontos, player2Pontos);
+        UIManager.Instance?.HideMatchResult();
+        UIManager.Instance?.startButton.SetActive(false);
     }
-
+    
     [Client]
-    public void InitializeMenus()
+    public void ShowStart()//Mostrar o btn de startar a partida
     {
-        menuDict[UIMenuType.TimerText] = GameObject.FindGameObjectWithTag("M1");
-        menuDict[UIMenuType.ScoreP1] = GameObject.FindGameObjectWithTag("M2");
-        menuDict[UIMenuType.ScoreP2] = GameObject.FindGameObjectWithTag("M3");
-        menuDict[UIMenuType.GameplayPanel] = GameObject.FindGameObjectWithTag("M4");
-        menuDict[UIMenuType.HUD] = GameObject.FindGameObjectWithTag("M5");
-        menuDict[UIMenuType.WinPanel] = GameObject.FindGameObjectWithTag("M6");
-        menuDict[UIMenuType.StartButton] = GameObject.FindGameObjectWithTag("M7");
-
-        DesactiveMenus();
+        if (isServer) UIManager.Instance.ShowStart();
     }
-
-    [Client]
-    public void ToggleMenu(UIMenuType type, bool active)
-    {
-        if (menuDict.TryGetValue(type, out var go))
-        {
-            go.SetActive(active);
-        }
-    }
-
-    [Client]
-    public void ActiveMenus()
-    {
-        ToggleMenu(UIMenuType.GameplayPanel, true);
-        ToggleMenu(UIMenuType.HUD, true);
-    }
-
-    [Client]
-    public void DesactiveMenus()
-    {
-        ToggleMenu(UIMenuType.GameplayPanel, false);
-        ToggleMenu(UIMenuType.HUD, false);
-        ToggleMenu(UIMenuType.WinPanel, false);
-        ToggleMenu(UIMenuType.StartButton, false);
-    }
-
-    [Client]
-    public void ShowPoints()
-    {
-        if (menuDict.TryGetValue(UIMenuType.ScoreP1, out var p1))
-            p1.GetComponent<Text>().text = $"P1: {player1Pontos}";
-
-        if (menuDict.TryGetValue(UIMenuType.ScoreP2, out var p2))
-            p2.GetComponent<Text>().text = $"P2: {player2Pontos}";
-    }
-
     // ----------------- Server Area ----------------------
 
     [Server]
-    public void ActiveTimer()
+    public void ActiveTimer()//ativa o cronometro da partida
     {
         timerActive = true;
     }
 
     [Server]
-    public void UpdatePlayerSlots()
+    public void UpdatePlayerSlots()//Atualiza os personagens disponiveis
     {
         player01 = GameObject.FindWithTag("Player1") != null;
         player02 = GameObject.FindWithTag("Player2") != null;
     }
 
     [Server]
-    public void SetIndexCurrent(int index)
+    public void SetIndexCurrent(int index)//ajusta o atual id do caracter a mostra
     {
         charIndex = index;
     }
 
     [Server]
-    public void ResetMatch()
+    public void ResetMatch()//Reseta a partida
     {
         matchTime = startTime * 60;
         player1Pontos = 0;
         player2Pontos = 0;
-        timerActive = true;
+        timerActive = false;
 
-        RpcResetCanvas();
-    }
-
-    [ClientRpc]
-    void RpcResetCanvas()
-    {
-        ShowPoints();
-        ToggleMenu(UIMenuType.WinPanel, false);
-        ToggleMenu(UIMenuType.StartButton, false);
+        ResetCanvas();
+        RpcUpdatePoints(player1Pontos, player2Pontos);
+        RpcUpdateTimer(matchTime);
+        UIManager.Instance?.HideMatchResult();
     }
 
     [Server]
-    public void AddPoints(int index)
+    public void AddPoints(int index)//Adiciona os pontos feitos
     {
         if (index == 0) player1Pontos++;
         if (index == 1) player2Pontos++;
@@ -207,37 +138,33 @@ public class GameManager : NetworkBehaviour
         RpcUpdatePoints(player1Pontos, player2Pontos);
     }
 
-    [ClientRpc]
-    void RpcUpdatePoints(int p1, int p2)
+    [Client]
+    void RpcUpdatePoints(int p1, int p2)//Altera a hud dos pontos
     {
-        player1Pontos = p1;
-        player2Pontos = p2;
-        ShowPoints();
+        UIManager.Instance?.HideMatchResult();
+        UIManager.Instance?.UpdateScore(player1Pontos, player2Pontos);
     }
 
     // ----------------- Sync ----------------------
 
     [TargetRpc]
-    public void TargetSyncState(NetworkConnection target)
+    public void TargetSyncState(NetworkConnection target)//Synca a UI
     {
-        ShowPoints();
+        UIManager.Instance?.UpdateScore(player1Pontos, player2Pontos);
         if (timerActive)
         {
-            ActiveMenus();
+            UIManager.Instance?.ActiveMenus();
         }
     }
 
     // ----------------- Command ----------------------
 
-    [Command(requiresAuthority = false)]
-    public void CmdRequestReset()
+    [Server]
+    public void RequestReset()//Reseta a partida
     {
-        if (isServer) ResetMatch();
-    }
+        if (!isServer) return;
 
-    [Client]
-    public void ShowStart()
-    {
-        if (isServer) ToggleMenu(UIMenuType.StartButton, true);
+        ResetMatch();
+        ActiveTimer();
     }
 }

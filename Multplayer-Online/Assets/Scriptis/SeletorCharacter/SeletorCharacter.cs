@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using Mirror;
 using Steamworks;
+using System.Linq;
 
 public class SeletorCharacter : NetworkBehaviour
 {
@@ -43,7 +44,7 @@ public class SeletorCharacter : NetworkBehaviour
         characterInstances[currentCharacterIndex].SetActive(true);
         characterNameText.text = characters[currentCharacterIndex].CharacterName;
 
-        if (characterSelectDisplay != null)characterSelectDisplay.SetActive(true);
+        if (characterSelectDisplay != null) characterSelectDisplay.SetActive(true);
     }
 
     private void Update()
@@ -51,8 +52,10 @@ public class SeletorCharacter : NetworkBehaviour
         characterPreviewParent.RotateAround(characterPreviewParent.position, characterPreviewParent.up, turnSpeed * Time.deltaTime);
     }
 
-    public void Select()
+    public void Select()//Serve para selecionar o personagem
     {
+        if (!TryGetGameManager(out var gm)) return;
+
         if (GameManager.Instance == null)
         {
             Debug.LogWarning("GameManager não encontrado.");
@@ -71,7 +74,7 @@ public class SeletorCharacter : NetworkBehaviour
             BtnChangeLeft();
         }
     }
-    public void BtnChangeRight()
+    public void BtnChangeRight()//troca personagem sentido direita
     {
         characterInstances[currentCharacterIndex].SetActive(false);
         currentCharacterIndex = (currentCharacterIndex + 1) % characterInstances.Count;
@@ -79,7 +82,7 @@ public class SeletorCharacter : NetworkBehaviour
         characterNameText.text = characters[currentCharacterIndex].CharacterName;
     }
 
-    public void BtnChangeLeft()
+    public void BtnChangeLeft()//troca personagem sentido esquerda
     {
         characterInstances[currentCharacterIndex].SetActive(false);
         currentCharacterIndex = (currentCharacterIndex - 1 + characterInstances.Count) % characterInstances.Count;
@@ -87,7 +90,7 @@ public class SeletorCharacter : NetworkBehaviour
         characterNameText.text = characters[currentCharacterIndex].CharacterName;
     }
     [Command(requiresAuthority = false)]
-    public void CmdCheckCharactersDisponibility()
+    public void CmdCheckCharactersDisponibility()//Checa a diponibilidade dos personagens
     {
         GameManager.Instance.UpdatePlayerSlots();
     }
@@ -111,14 +114,14 @@ public class SeletorCharacter : NetworkBehaviour
         //NetworkServer.SetClientReady(sender);
         GameManager.Instance.UpdatePlayerSlots();
         // Manda para o cliente ocultar a seleção e ativar a UI
-        
+
         TargetOnCharacterSelected(sender);
     }
     //---------TargetRpc--------------------------------------------------------------
     [TargetRpc]
-    void TargetOnCharacterSelected(NetworkConnection target)
+    void TargetOnCharacterSelected(NetworkConnection target)//confirma a seleção do personagem
     {
-    Debug.Log("Personagem selecionado com sucesso no cliente.");
+        Debug.Log("Personagem selecionado com sucesso no cliente.");
         if (GameManager.Instance == null)
         {
             Debug.LogWarning("GameManager não encontrado no cliente.");
@@ -127,10 +130,27 @@ public class SeletorCharacter : NetworkBehaviour
 
         if (characterSelectDisplay != null) characterSelectDisplay.SetActive(false);
 
-        GameManager.Instance.ActiveMenus();
-        GameManager.Instance.ShowPoints();
+        UIManager.Instance.ActiveMenus();
+        if (isServer) GameManager.Instance.ShowStart();
+    }
+    //---------Utilidade---------------------------------------------------------------
+    private bool TryGetGameManager(out GameManager gm)
+    {
+        gm = GameManager.Instance;
+        if (gm != null) return true;
 
-        if (isServer)GameManager.Instance.ShowStart();
+        gm = NetworkClient.spawned.Values
+                .Select(go => go.GetComponent<GameManager>())
+                .FirstOrDefault(g => g != null);
+
+        if (gm != null)
+        {
+            GameManager.Instance = gm;
+            return true;
+        }
+
+        Debug.LogError("GameManager não encontrado!");
+        return false;
     }
 
 }

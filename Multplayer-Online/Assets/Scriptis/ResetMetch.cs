@@ -1,17 +1,39 @@
 using Mirror;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ResetMetch : MonoBehaviour
 {
-    public void OnClickReiniciar()//Apena para o botão de resdetar partida
+    private Button startButton;
+
+    private void Awake()
     {
-        if (GameManager.Instance != false)
-        {
-            GameManager.Instance.CmdRequestReset();
-            gameObject.SetActive(false);
-        }else
-    {
-        Debug.LogError("GameManager não encontrado!");
+        startButton = GetComponent<Button>();
+        startButton.onClick.AddListener(OnStartClicked);
     }
+
+    private void OnEnable()
+    {
+        // Só deixa o botão visível se for Host (Server ativo e Client ativo)
+        if (NetworkServer.active && NetworkClient.isConnected)
+        {
+            gameObject.SetActive(true);
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
+    }
+
+    private void OnStartClicked()
+    {
+        if (!NetworkServer.active)
+        {
+            Debug.LogWarning("Tentou iniciar, mas não é Host.");
+            return;
+        }
+
+        GameManager.Instance?.RequestReset();
+        UIManager.Instance?.HideMatchResult();
     }
 }

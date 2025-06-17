@@ -64,7 +64,7 @@ public class PlayerMuve : NetworkBehaviour
 
     void Update()
     {
-        if ( !authority ||!NetworkClient.isConnected) return;
+        if (!isOwned ||!NetworkClient.isConnected) return;
 
         HandleCursor();
         RotateView();

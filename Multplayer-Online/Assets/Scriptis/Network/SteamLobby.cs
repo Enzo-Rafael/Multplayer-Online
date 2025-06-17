@@ -3,6 +3,7 @@ using Mirror;
 using Steamworks;
 using UnityEngine.UI;
 using System.Collections;
+using System.Linq;
 
 public class SteamLobby : MonoBehaviour
 {
@@ -16,12 +17,17 @@ public class SteamLobby : MonoBehaviour
     //Configs
     public ulong CurrentLobbyID;
     private const string HostAddressKey = "HostAddress";
-    private MyNetworkManager networkManager;
-    public static CSteamID iD { get; private set; }
+    [SerializeField]private MyNetworkManager networkManager;
+    public static CSteamID ID { get; private set; }
+
+    private void Awake()
+    {
+        if (networkManager == null) networkManager = FindAnyObjectByType<MyNetworkManager>();
+    }
 
     private void Start()
     {
-        networkManager = FindAnyObjectByType<MyNetworkManager>();
+       
         if (!SteamManager.Initialized) return;
 
         lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
@@ -35,7 +41,7 @@ public class SteamLobby : MonoBehaviour
         SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, networkManager.maxConnections);
     }
 
-    private void OnLobbyCreated(LobbyCreated_t callback)
+    private void OnLobbyCreated(LobbyCreated_t callback)//Cria o Lobby Steam + inicia o servidor Mirror
     {
         if (callback.m_eResult != EResult.k_EResultOK)
         {
@@ -44,7 +50,7 @@ public class SteamLobby : MonoBehaviour
             return;
         }
 
-        iD = new CSteamID(callback.m_ulSteamIDLobby);
+        ID = new CSteamID(callback.m_ulSteamIDLobby);
         StartCoroutine(SetupLobby());
     }
 
@@ -58,8 +64,8 @@ public class SteamLobby : MonoBehaviour
             yield break;
         }
 
-        SteamMatchmaking.SetLobbyData(iD, HostAddressKey, SteamUser.GetSteamID().ToString());
-        SteamMatchmaking.SetLobbyData(iD, "name", SteamFriends.GetPersonaName() + "'s Lobby");
+        SteamMatchmaking.SetLobbyData(ID, HostAddressKey, SteamUser.GetSteamID().ToString());
+        SteamMatchmaking.SetLobbyData(ID, "name", SteamFriends.GetPersonaName() + "'s Lobby");
     }
 
     private void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t callback)//Serve para solicitar entrada no lobby
@@ -67,7 +73,7 @@ public class SteamLobby : MonoBehaviour
         SteamMatchmaking.JoinLobby(callback.m_steamIDLobby);
     }
 
-    private void OnLobbyEntered(LobbyEnter_t callback)
+    private void OnLobbyEntered(LobbyEnter_t callback)//Entra no lobby Steam + conecta ao servidor Mirror
     {
         buttons.SetActive(false);
         CurrentLobbyID = callback.m_ulSteamIDLobby;
@@ -81,6 +87,13 @@ public class SteamLobby : MonoBehaviour
 
     private IEnumerator ConnectClient()
     {
+        if (!SteamManager.Initialized)
+        {
+            Debug.LogError("Steam não está inicializado.");
+            yield break;
+        }
+        yield return new WaitForSeconds(1f); 
+
         string hostAddress = "";
 
         for (int i = 0; i < 10; i++)
@@ -97,8 +110,15 @@ public class SteamLobby : MonoBehaviour
         }
 
         networkManager.networkAddress = hostAddress;
+        yield return new WaitUntil(() => NetworkServer.active);
         networkManager.StartClient();
         yield return new WaitUntil(() => NetworkClient.isConnected);
+        if (GameManager.Instance == null)
+        {
+            GameManager.Instance = NetworkClient.spawned.Values
+            .Select(go => go.GetComponent<GameManager>())
+            .FirstOrDefault(gm => gm != null);
+        }
         StartCoroutine(WaitForGameManager());
     }
     private IEnumerator WaitForGameManager()
@@ -109,15 +129,33 @@ public class SteamLobby : MonoBehaviour
             timeout -= Time.deltaTime;
             yield return null;
         }
+        if (GameManager.Instance == null)
+        {
+            TryFindGameManager();
+        }
 
         if (GameManager.Instance != null)
         {
             Debug.Log("GameManager encontrado no cliente.");
-            GameManager.Instance.InitializeMenus();
+            UIManager.Instance.DesactiveMenus();
         }
         else
         {
             Debug.LogError("GameManager não encontrado no cliente.");
+        }
+    }
+    private void TryFindGameManager()
+    {
+        foreach (var obj in NetworkClient.spawned.Values)
+        {
+            GameManager.Instance = NetworkClient.spawned.Values
+            .Select(go => go.GetComponent<GameManager>())
+            .FirstOrDefault(gm => gm != null);
+            if (GameManager.Instance != null)
+            {
+                Debug.LogWarning("GameManager localizado via NetworkClient.spawned.");
+                break;
+            }
         }
     }
 }
