@@ -5,6 +5,7 @@ public class ChatManager : NetworkBehaviour
 {
     [SerializeField] private TMP_InputField inputField;
     [SerializeField] private TextMeshProUGUI chatArea;
+    GameObject dono;
 
     void Start()
     {
@@ -16,14 +17,30 @@ public class ChatManager : NetworkBehaviour
         }
 
     }
-
+   
     public void OnSendButton()
     {
+        if (!isClient) return;
         if (string.IsNullOrWhiteSpace(inputField.text)) return;
 
-        ChatMessage msg = new ChatMessage
+        if (GameObject.FindGameObjectWithTag("Player1").GetComponent<NetworkIdentity>().isOwned)
         {
-            sender = NetworkClient.connection.identity.GetComponent<PlayerName>().playerName,
+            dono = GameObject.FindGameObjectWithTag("Player1");
+            
+        }
+        else if (GameObject.FindGameObjectWithTag("Player2").GetComponent<NetworkIdentity>().isOwned)
+        {
+            dono = GameObject.FindGameObjectWithTag("Player2");
+        }
+        else
+        {
+            Debug.LogError("Player não encontrado");
+        }
+        Debug.Log(dono.name);
+
+        ChatMessage msg = new()
+        {
+            sender = dono.GetComponent<PlayerName>().playerName,
             content = inputField.text
         };
 
@@ -46,8 +63,12 @@ public class ChatManager : NetworkBehaviour
         chatArea.text += finalText;
 
         // Se for servidor, repassa para todos
-        if (NetworkServer.active)
+        if (isServer)
+        {
+            if (NetworkServer.active)
             NetworkServer.SendToAll(msg);
+        }
+        
     }
 }
 

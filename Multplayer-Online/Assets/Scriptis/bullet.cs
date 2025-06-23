@@ -3,23 +3,34 @@ using Mirror;
 
 public class bullet : NetworkBehaviour
 {
-    public float damage = 3;
-    void Awake()
-    {
-        Destroy(gameObject, damage);
-    }
-    [Server]
-    void OnCollisionEnter(Collision collision)
-    {
-        if (!authority)
-        {
-            Destroy(gameObject);
-            return;
-        } 
-        
-        if ( collision.gameObject.CompareTag("Player1")) GameManager.Instance.AddPoints(0);
-        if (collision.gameObject.CompareTag("Player2"))GameManager.Instance.AddPoints(1);
-        Destroy(gameObject);
+    [Header("Bullet Settings")]
+    public float speed = 20f;
+    public float lifetime = 3f;
+    public int playerIndex; // 0 = P1, 1 = P2
 
+    private void Start()
+    {
+        Destroy(gameObject, lifetime);
+    }
+
+    private void Update()
+    {
+        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+    }
+
+    [ServerCallback]
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player1"))
+        {
+            if (playerIndex == 1) GameManager.Instance.AddPoints(1);
+        }
+
+        if (other.CompareTag("Player2"))
+        {
+            if (playerIndex == 0) GameManager.Instance.AddPoints(0);
+        }
+
+        NetworkServer.Destroy(gameObject);
     }
 }

@@ -20,11 +20,12 @@ public class MyNetworkManager : NetworkManager
 
     public override void OnServerConnect(NetworkConnectionToClient conn)//Acontece quando o Server Inicia
     {
+        
         base.OnServerConnect(conn);
         Debug.Log("Ola, conectei ");
         //GameManager.Instance.startPos = NetworkManager.startPositions;
 
-        GameManager.Instance.CheckCharactersDisponibility();
+        if(NetworkClient.ready)GameManager.Instance.CheckCharactersDisponibility();
 
     }
     public override void OnClientConnect()//Acontece quando o Cliente conecta

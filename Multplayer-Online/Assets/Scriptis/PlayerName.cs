@@ -8,6 +8,7 @@ public class PlayerName : NetworkBehaviour
 
     public override void OnStartLocalPlayer()
     {
+        if (!authority) return;
         string chosenName = "Player_" + Random.Range(100, 999);
         CmdSetName(chosenName);
     }
