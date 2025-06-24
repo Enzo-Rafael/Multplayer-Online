@@ -1,74 +1,59 @@
 using UnityEngine;
 using Mirror;
 using TMPro;
+using System;
+
 public class ChatManager : NetworkBehaviour
 {
-    [SerializeField] private TMP_InputField inputField;
-    [SerializeField] private TextMeshProUGUI chatArea;
-    GameObject dono;
+    [SerializeField] private GameObject chatUI = null;
+    [SerializeField] private TMP_InputField inputField = null;
+    [SerializeField] private TMP_Text chatArea = null;
+    [SerializeField] private string nameP;
 
-    void Start()
+    private static event Action<string> OnMessage;
+
+    public override void OnStartAuthority()//Detecta se quem iniciou foi o real dono do codigo 
     {
-        if (NetworkServer.active)
-            NetworkServer.RegisterHandler<ChatMessage>(OnMessageReceived);
-        if (NetworkClient.isConnected)
-        {
-            NetworkClient.RegisterHandler<ChatMessage>(OnMessageReceivedClient);
-        }
+        chatUI.SetActive(true);
 
-    }
-   
-    public void OnSendButton()
-    {
-        if (!isClient) return;
-        if (string.IsNullOrWhiteSpace(inputField.text)) return;
-
-        if (GameObject.FindGameObjectWithTag("Player1").GetComponent<NetworkIdentity>().isOwned)
-        {
-            dono = GameObject.FindGameObjectWithTag("Player1");
-            
-        }
-        else if (GameObject.FindGameObjectWithTag("Player2").GetComponent<NetworkIdentity>().isOwned)
-        {
-            dono = GameObject.FindGameObjectWithTag("Player2");
-        }
-        else
-        {
-            Debug.LogError("Player não encontrado");
-        }
-        Debug.Log(dono.name);
-
-        ChatMessage msg = new()
-        {
-            sender = dono.GetComponent<PlayerName>().playerName,
-            content = inputField.text
-        };
-
-        NetworkClient.Send(msg); // Envia para o servidor
-        inputField.text = "";
+        OnMessage += HandleNewMessage;
     }
 
-    void OnMessageReceived(NetworkConnection conn, ChatMessage msg)
+    [ClientCallback]
+    private void OnDestroy()
     {
-        string finalText = $"<b>{msg.sender}</b>: {msg.content}\n";
-        chatArea.text += finalText;
+        if (!isOwned) { return; }
 
-        // Se for servidor, repassa para todos
-        if (NetworkServer.active)
-            NetworkServer.SendToAll(msg);
+        OnMessage -= HandleNewMessage;
     }
-    void OnMessageReceivedClient( ChatMessage msg)
-    {
-        string finalText = $"<b>{msg.sender}</b>: {msg.content}\n";
-        chatArea.text += finalText;
 
-        // Se for servidor, repassa para todos
-        if (isServer)
-        {
-            if (NetworkServer.active)
-            NetworkServer.SendToAll(msg);
-        }
-        
+    private void HandleNewMessage(string message)      
+    {
+        chatArea.text += message;
+    }
+    [Client]
+    public void Send(string message)//Onde é chamado para enviar a mensagem
+    {
+        if (!Input.GetKeyDown(KeyCode.Return)) { return; }
+
+        if (string.IsNullOrWhiteSpace(message)) { return; }
+
+        CmdSendMessage(message);
+
+        inputField.text = string.Empty;
+    
+    }
+
+    [Command]
+    private void CmdSendMessage(string message)//Onde a mensagem 
+    {
+        RpcHandleMessage($"[{connectionToClient.connectionId}-{nameP}]: {message}");
+    }
+
+    [ClientRpc]
+    private void RpcHandleMessage(string message)
+    {
+        OnMessage?.Invoke($"\n{message}");
     }
 }
 
